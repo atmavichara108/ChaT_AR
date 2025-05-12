@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Агрегатор Ресурсов ЧаТ: Полное методическое руководство</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-green: #2a6242;
@@ -14,49 +14,84 @@
             --light-brown: #8d6e63;
             --bg-cream: #f5f5dc;
             --text-dark: #333333;
+            --color-primary: #4a6741;
+            --color-secondary: #8c7851;
+            --color-accent: #d8b26e;
+            --color-text: #333;
+            --color-background: #f9f7f2;
+            --color-sidebar: #eae6da;
+            --color-divider: #d3cbb6;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-cream);
             color: var(--text-dark);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
         }
-        
+
         .sidebar {
             background-color: var(--primary-green);
             color: white;
+            width: 280px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
-        
+
+        .sidebar.collapsed {
+            width: 60px;
+            padding: 1.5rem 0.5rem;
+        }
+
+        .sidebar.collapsed .toc-title span,
+        .sidebar.collapsed .toc-list {
+            display: none;
+        }
+
         .sidebar-link {
             color: white;
             padding: 0.5rem 1rem;
             border-left: 3px solid transparent;
             transition: all 0.3s;
         }
-        
+
         .sidebar-link:hover, .sidebar-link.active {
             background-color: rgba(255, 255, 255, 0.1);
             border-left-color: var(--light-green);
         }
-        
+
         .sidebar-sublink {
             padding-left: 2rem;
             font-size: 0.9rem;
         }
-        
+
+        .content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
         .section-title {
             color: var(--primary-green);
             border-bottom: 2px solid var(--light-green);
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .subsection-title {
             color: var(--dark-brown);
             margin-top: 1.5rem;
             margin-bottom: 1rem;
         }
-        
+
         .card {
             background-color: white;
             border-radius: 0.5rem;
@@ -65,58 +100,220 @@
             margin-bottom: 1.5rem;
             border-top: 4px solid var(--primary-green);
         }
-        
+
         .example-card {
             background-color: rgba(163, 201, 168, 0.2);
             border-left: 4px solid var(--light-green);
             padding: 1rem;
             margin: 1rem 0;
         }
-        
+
         .template-card {
             background-color: rgba(141, 110, 99, 0.1);
             border-left: 4px solid var(--light-brown);
             padding: 1rem;
             margin: 1rem 0;
         }
-        
-        .progress-container {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 9999px;
-            height: 0.75rem;
+
+        .toc-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .toc-toggle {
+            cursor: pointer;
+            color: var(--color-secondary);
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc-list a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toc-list a:hover {
+            background-color: rgba(74, 103, 65, 0.1);
+        }
+
+        .toc-list a.active {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .toc-list li ul {
+            padding-left: 1.5rem;
+            list-style: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--color-primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--color-divider);
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 1px solid var(--color-divider);
+            padding-bottom: 0.3rem;
+            margin-top: 3rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        h4 {
+            font-size: 1.3rem;
+            color: var(--color-secondary);
+        }
+
+        h5 {
+            font-size: 1.1rem;
+            color: var(--color-secondary);
+        }
+
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .collapsible::after {
+            content: "\f078";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--color-secondary);
+            margin-left: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .collapsible.active::after {
+            transform: rotate(180deg);
+        }
+
+        .collapse-content {
+            max-height: 0;
             overflow: hidden;
-            margin-top: 0.5rem;
+            transition: max-height 0.3s ease-out;
         }
-        
-        .progress-bar {
-            height: 100%;
-            border-radius: 9999px;
-            background-color: var(--primary-green);
+
+        .collapse-content.open {
+            max-height: 100000px;
         }
-        
+
+        .resource-card {
+            border: 1px solid var(--color-divider);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .resource-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .badge-secondary {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+
+        .badge-accent {
+            background-color: var(--color-accent);
+            color: var(--color-text);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1.5rem 0;
+            margin-bottom: 1.5rem;
         }
-        
+
         th {
             background-color: var(--primary-green);
             color: white;
             padding: 0.75rem;
             text-align: left;
         }
-        
+
         td {
             padding: 0.75rem;
             border-bottom: 1px solid #e0e0e0;
         }
-        
+
         tr:nth-child(even) {
             background-color: rgba(163, 201, 168, 0.1);
         }
-        
+
         .btn {
             display: inline-block;
             padding: 0.5rem 1rem;
@@ -126,177 +323,184 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        
+
         .btn-primary {
             background-color: var(--primary-green);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background-color: #1e4e35;
         }
-        
-        .btn-secondary {
-            background-color: var(--light-brown);
+
+        .form-template {
+            border: 1px solid var(--color-divider);
+            border-radius: 8px;
+            padding: 1.5rem;
+            background-color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--color-divider);
+            border-radius: 4px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--color-divider);
+            border-radius: 4px;
+            min-height: 100px;
+        }
+
+        .form-checkbox {
+            margin-right: 0.5rem;
+        }
+
+        .form-button {
+            background-color: var(--color-primary);
             color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
         }
-        
-        .btn-secondary:hover {
-            background-color: #7d5e53;
+
+        .form-button:hover {
+            background-color: var(--color-secondary);
         }
-        
-        .resource-icon {
-            width: 3rem;
-            height: 3rem;
+
+        .resource-map {
+            position: relative;
+            width: 100%;
+            padding: 2rem;
+            border: 1px solid var(--color-divider);
+            border-radius: 8px;
+            background-color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .resource-map-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .map-node {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            background-color: var(--light-green);
-            color: var(--primary-green);
-            font-size: 1.5rem;
-            margin-right: 1rem;
+            text-align: center;
+            margin: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
         }
-        
-        .level-card {
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+
+        .map-node:hover {
+            transform: scale(1.1);
+        }
+
+        .map-node.level-1 {
+            background-color: #6c8c5f;
+        }
+
+        .map-node.level-2 {
+            background-color: #8c7851;
+        }
+
+        .map-node.level-3 {
+            background-color: #aa6e33;
+        }
+
+        .map-node.level-4 {
+            background-color: #aa5c33;
+        }
+
+        .map-node.level-5 {
+            background-color: #884a33;
+        }
+
+        .map-tooltip {
+            position: absolute;
+            background-color: white;
+            border: 1px solid var(--color-divider);
+            border-radius: 4px;
+            padding: 1rem;
+            width: 200px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            visibility: hidden;
+            opacity: 0;
             transition: all 0.3s;
         }
-        
-        .level-1 {
-            background-color: #f5f5f5;
-            border-left: 4px solid #9e9e9e;
+
+        .map-node:hover .map-tooltip {
+            visibility: visible;
+            opacity: 1;
         }
-        
-        .level-2 {
-            background-color: #e8f5e9;
-            border-left: 4px solid #81c784;
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar.collapsed {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
         }
-        
-        .level-3 {
-            background-color: #e0f2f1;
-            border-left: 4px solid #4db6ac;
-        }
-        
-        .level-4 {
-            background-color: #e3f2fd;
-            border-left: 4px solid #64b5f6;
-        }
-        
-        .level-5 {
-            background-color: #ede7f6;
-            border-left: 4px solid #9575cd;
-        }
-        
-        .process-step {
-            display: flex;
-            margin-bottom: 1.5rem;
-        }
-        
-        .step-number {
-            width: 2rem;
-            height: 2rem;
-            background-color: var(--primary-green);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .step-content {
-            flex-grow: 1;
-        }
-        
-        .matrix-cell {
-            border: 1px solid #e0e0e0;
-            padding: 0.75rem;
-            text-align: center;
-        }
-        
-        .matrix-header {
-            background-color: var(--primary-green);
-            color: white;
-            font-weight: bold;
-        }
-        
-        .matrix-primary {
-            background-color: var(--light-green);
-        }
-        
-        .matrix-secondary {
-            background-color: rgba(163, 201, 168, 0.3);
-        }
-        
-        .tea-leaf-bullet {
-            list-style: none;
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .tea-leaf-bullet:before {
-            content: "☘️";
-            position: absolute;
-            left: 0;
-            color: var(--primary-green);
-        }
-        
-        .resource-access {
-            display: inline-block;
-            width: 1.5rem;
-            height: 1.5rem;
-            text-align: center;
-            line-height: 1.5rem;
-            border-radius: 50%;
-            font-weight: bold;
-        }
-        
-        .access-full {
-            background-color: #4caf50;
-            color: white;
-        }
-        
-        .access-partial {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        .access-none {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        /* Print/PDF specific styles */
+
         @media print {
             body {
                 background-color: white;
                 color: black;
             }
-            
+
             .sidebar {
                 display: none;
             }
-            
+
             .content {
                 margin-left: 0;
                 width: 100%;
             }
-            
+
             a {
                 text-decoration: none;
                 color: var(--primary-green);
             }
-            
+
             .section-break {
                 page-break-before: always;
             }
-            
+
             .card {
                 break-inside: avoid;
                 box-shadow: none;
@@ -306,45 +510,105 @@
     </style>
 </head>
 <body class="flex flex-col md:flex-row">
-    <!-- Sidebar Navigation -->
-    <div class="sidebar fixed top-0 left-0 w-64 h-screen overflow-y-auto hidden md:block">
+    <div class="sidebar fixed top-0 left-0 h-screen overflow-y-auto hidden md:block" id="sidebar">
         <div class="p-4">
-            <h2 class="text-xl font-bold mb-6">Агрегатор Ресурсов ЧаТ</h2>
-            
-            <!-- Main Navigation -->
+            <div class="toc-title">
+                <span>Содержание</span>
+                <i class="fas fa-bars toc-toggle" id="toc-toggle"></i>
+            </div>
             <nav class="space-y-1">
-                <a href="#intro" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    1. Введение и обзор
-                </a>
-                <a href="#membership" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    2. Структура членства
-                </a>
-                <a href="#resources" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    3. Категории ресурсов
-                </a>
-                <a href="#team" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    4. Структура команды
-                </a>
-                <a href="#implementation" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    5. Реализация проектов
-                </a>
-                <a href="#financial" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    6. Финансовые модели
-                </a>
-                <a href="#operational" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    7. Операционные инструменты
-                </a>
-                <a href="#growth" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    8. Стратегия роста
-                </a>
-                <a href="#appendices" class="sidebar-link block rounded hover:bg-opacity-25 hover:text-white">
-                    9. Приложения
-                </a>
+                <ul class="toc-list" id="toc-list">
+                    <li><a href="#intro" class="sidebar-link block rounded">1. Введение и обзор</a>
+                        <ul>
+                            <li><a href="#intro-mission" class="sidebar-sublink">1.1. Миссия и видение ЧаТ</a></li>
+                            <li><a href="#intro-concept" class="sidebar-sublink">1.2. Концепция Агрегатора Ресурсов</a></li>
+                            <li><a href="#intro-howto" class="sidebar-sublink">1.3. Как использовать этот документ</a></li>
+                            <li><a href="#intro-principles" class="sidebar-sublink">1.4. Ключевые принципы и ценности</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#membership" class="sidebar-link block rounded">2. Структура членства и рост</a>
+                        <ul>
+                            <li><a href="#membership-tiers" class="sidebar-sublink">2.1. 5-уровневая система членства</a></li>
+                            <li><a href="#membership-access" class="sidebar-sublink">2.2. Права доступа к ресурсам</a></li>
+                            <li><a href="#membership-paths" class="sidebar-sublink">2.3. Пути развития и роста</a></li>
+                            <li><a href="#membership-maps" class="sidebar-sublink">2.4. Карты доступа к ресурсам</a></li>
+                            <li><a href="#membership-examples" class="sidebar-sublink">2.5. Примеры путей участников</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#resources" class="sidebar-link block rounded">3. Категории ресурсов и предложения</a>
+                        <ul>
+                            <li><a href="#resources-tea" class="sidebar-sublink">3.1. Система дистрибьюции чая</a></li>
+                            <li><a href="#resources-investment" class="sidebar-sublink">3.2. Инвестиционные возможности</a></li>
+                            <li><a href="#resources-education" class="sidebar-sublink">3.3. Образовательные программы</a></li>
+                            <li><a href="#resources-collaboration" class="sidebar-sublink">3.4. Структура сотрудничества</a></li>
+                            <li><a href="#resources-physical" class="sidebar-sublink">3.5. Физические ресурсы</a></li>
+                            <li><a href="#resources-brand" class="sidebar-sublink">3.6. Бренд и маркетинговые ресурсы</a></li>
+                            <li><a href="#resources-digital" class="sidebar-sublink">3.7. Цифровая инфраструктура</a></li>
+                            <li><a href="#resources-new" class="sidebar-sublink">3.8. Новые возможности</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#team" class="sidebar-link block rounded">4. Структура команды и роли</a>
+                        <ul>
+                            <li><a href="#team-structure" class="sidebar-sublink">4.1. Структура комитетов и функции</a></li>
+                            <li><a href="#team-roles" class="sidebar-sublink">4.2. Описания ключевых ролей</a></li>
+                            <li><a href="#team-matrices" class="sidebar-sublink">4.3. Матрицы ответственности</a></li>
+                            <li><a href="#team-communication" class="sidebar-sublink">4.4. Протоколы коммуникации</a></li>
+                            <li><a href="#team-meetings" class="sidebar-sublink">4.5. Структуры встреч</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#implementation" class="sidebar-link block rounded">5. Фреймворк реализации проектов</a>
+                        <ul>
+                            <li><a href="#implementation-steps" class="sidebar-sublink">5.1. Пошаговое руководство</a></li>
+                            <li><a href="#implementation-resources" class="sidebar-sublink">5.2. Расчет ресурсов</a></li>
+                            <li><a href="#implementation-quality" class="sidebar-sublink">5.3. Стандарты качества</a></li>
+                            <li><a href="#implementation-risk" class="sidebar-sublink">5.4. Оценка рисков</a></li>
+                            <li><a href="#implementation-lifecycle" class="sidebar-sublink">5.5. Жизненный цикл</a></li>
+                            <li><a href="#implementation-cases" class="sidebar-sublink">5.6. Кейс-стади</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#financial" class="sidebar-link block rounded">6. Финансовые модели</a>
+                        <ul>
+                            <li><a href="#financial-streams" class="sidebar-sublink">6.1. Потоки доходов</a></li>
+                            <li><a href="#financial-mechanisms" class="sidebar-sublink">6.2. Механизмы инвестирования</a></li>
+                            <li><a href="#financial-tracking" class="sidebar-sublink">6.3. Финансовый учет</a></li>
+                            <li><a href="#financial-allocation" class="sidebar-sublink">6.4. Распределение ресурсов</a></li>
+                            <li><a href="#financial-sustainability" class="sidebar-sublink">6.5. Устойчивость</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#operational" class="sidebar-link block rounded">7. Операционные инструменты</a>
+                        <ul>
+                            <li><a href="#operational-meeting" class="sidebar-sublink">7.1. Шаблоны встреч</a></li>
+                            <li><a href="#operational-canvas" class="sidebar-sublink">7.2. Проектный канвас</a></li>
+                            <li><a href="#operational-tracking" class="sidebar-sublink">7.3. Отслеживание членства</a></li>
+                            <li><a href="#operational-forms" class="sidebar-sublink">7.4. Формы распределения</a></li>
+                            <li><a href="#operational-evaluation" class="sidebar-sublink">7.5. Фреймворки оценки</a></li>
+                            <li><a href="#operational-calendars" class="sidebar-sublink">7.6. Планирование календарей</a></li>
+                            <li><a href="#operational-logs" class="sidebar-sublink">7.7. Журналы решений</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#growth" class="sidebar-link block rounded">8. Стратегия роста</a>
+                        <ul>
+                            <li><a href="#growth-phases" class="sidebar-sublink">8.1. Фазовый план</a></li>
+                            <li><a href="#growth-kpi" class="sidebar-sublink">8.2. Ключевые показатели</a></li>
+                            <li><a href="#growth-community" class="sidebar-sublink">8.3. Построение сообщества</a></li>
+                            <li><a href="#growth-geo" class="sidebar-sublink">8.4. Географическое расширение</a></li>
+                            <li><a href="#growth-partnership" class="sidebar-sublink">8.5. Стратегические партнерства</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#appendices" class="sidebar-link block rounded">9. Приложения</a>
+                        <ul>
+                            <li><a href="#appendices-tea" class="sidebar-sublink">9.1. База знаний о чае</a></li>
+                            <li><a href="#appendices-negotiation" class="sidebar-sublink">9.2. Фреймворки переговоров</a></li>
+                            <li><a href="#appendices-directory" class="sidebar-sublink">9.3. Справочник партнеров</a></li>
+                            <li><a href="#appendices-glossary" class="sidebar-sublink">9.4. Глоссарий терминов</a></li>
+                            <li><a href="#appendices-faq" class="sidebar-sublink">9.5. Часто задаваемые вопросы</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </nav>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="content flex-grow md:ml-64 p-8">
         <header class="mb-10">
             <h1 class="text-4xl font-bold text-center mb-4" style="color: var(--primary-green);">Агрегатор Ресурсов ЧаТ</h1>
@@ -353,7 +617,6 @@
             <div class="w-24 h-1 mx-auto bg-green-700 mb-8"></div>
         </header>
 
-        <!-- Table of Contents -->
         <div class="card mb-10">
             <h2 class="text-2xl font-bold mb-4">Содержание</h2>
             <ol class="space-y-2">
@@ -446,24 +709,19 @@
             </ol>
         </div>
 
-        <!-- 1. INTRODUCTION AND OVERVIEW -->
         <section id="intro" class="mb-16">
             <h2 class="section-title text-3xl font-bold">1. Введение и обзор</h2>
-            
-            <!-- 1.1 Mission Statement -->
+
             <div id="intro-mission" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">1.1 Миссия и видение ЧаТ</h3>
-                
                 <div class="mb-6">
                     <h4 class="text-xl font-semibold mb-2" style="color: var(--dark-brown);">Миссия</h4>
                     <p class="mb-4">Чайный Траст посвящен продвижению чайной культуры через образование, предпринимательство и культурный обмен. Мы создаем сообщество энтузиастов чая в Батуми, предоставляя им возможности для обучения, творчества и бизнес-развития в нашем уникальном комплексе. Наша миссия — вдохновлять и укреплять личный рост членов сообщества, а также способствовать сохранению и развитию чайной культуры.</p>
-                    
                     <div class="example-card">
                         <p class="italic text-sm mb-2">По простому:</p>
                         <p>Продвигать чайную культуру через образование, предпринимательство и культурный обмен, а также создавать сообщество для личного и профессионального роста участников.</p>
                     </div>
                 </div>
-                
                 <div class="mb-6">
                     <h4 class="text-xl font-semibold mb-2" style="color: var(--dark-brown);">Видение</h4>
                     <p class="mb-4">Мы видим ЧаТ как ведущий региональный центр чайной культуры, объединяющий традиции и инновации, где:</p>
@@ -475,27 +733,22 @@
                         <li class="tea-leaf-bullet">Грузинские чайные традиции возрождаются и интегрируются с мировым опытом</li>
                     </ul>
                 </div>
-                
                 <div>
                     <h4 class="text-xl font-semibold mb-2" style="color: var(--dark-brown);">Цели ЧаТ</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p class="font-semibold mb-1">Популяризация чайной культуры</p>
                             <p class="text-sm mb-3">Привлекать всех, кто любит чай, к искусству чайных церемоний, от первых шагов до глубоких погружений.</p>
-                            
                             <p class="font-semibold mb-1">Образование</p>
                             <p class="text-sm mb-3">Создавать курсы, мастер-классы и другие продукты, чтобы делиться знаниями — от основ китайского чая до локальных традиций.</p>
-                            
                             <p class="font-semibold mb-1">Коллаборации</p>
                             <p class="text-sm mb-3">Объединять мастеров, компании и творцов для совместных ивентов, обмена опытом и роста сообщества.</p>
                         </div>
                         <div>
                             <p class="font-semibold mb-1">Предпринимательство</p>
                             <p class="text-sm mb-3">Агрегировать возможности для бизнеса — от продажи чая до запуска собственных проектов под эгидой ЧаТ.</p>
-                            
                             <p class="font-semibold mb-1">Инновации</p>
                             <p class="text-sm mb-3">Внедрять новые форматы — подкасты, виртуальные церемонии, чайные стартапы.</p>
-                            
                             <p class="font-semibold mb-1">Флагманский проект</p>
                             <p class="text-sm">Создать чайный комплекс в Батуми — с мастерской, гончарной, коворкингом, хостелом и магазином хендмейда, где чай станет сердцем творчества и встреч.</p>
                         </div>
@@ -503,12 +756,9 @@
                 </div>
             </div>
 
-            <!-- 1.2 Concept of Resource Aggregator -->
             <div id="intro-concept" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">1.2 Концепция Агрегатора Ресурсов</h3>
-                
                 <p class="mb-4">Агрегатор Ресурсов — это центральная концепция ЧаТ, представляющая собой систему, которая объединяет, структурирует и делает доступными различные ресурсы и возможности для всех участников сообщества. Это не просто каталог, а живая экосистема, где каждый может как получать доступ к ресурсам, так и вносить свой вклад.</p>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="flex">
                         <div class="resource-icon">
@@ -519,7 +769,6 @@
                             <p class="text-sm">Участники могут обмениваться материальными и нематериальными ресурсами, умножая их ценность через совместное использование.</p>
                         </div>
                     </div>
-                    
                     <div class="flex">
                         <div class="resource-icon">
                             <i class="fas fa-hands-helping"></i>
@@ -529,7 +778,6 @@
                             <p class="text-sm">Система позволяет объединять усилия для достижения целей, которые недоступны индивидуально.</p>
                         </div>
                     </div>
-                    
                     <div class="flex">
                         <div class="resource-icon">
                             <i class="fas fa-lightbulb"></i>
@@ -539,7 +787,6 @@
                             <p class="text-sm">Создание новых идей, продуктов и услуг через комбинирование существующих ресурсов и подходов.</p>
                         </div>
                     </div>
-                    
                     <div class="flex">
                         <div class="resource-icon">
                             <i class="fas fa-seedling"></i>
@@ -550,12 +797,9 @@
                         </div>
                     </div>
                 </div>
-                
                 <h4 class="text-xl font-semibold mb-3" style="color: var(--dark-brown);">Роль Агрегатора в экосистеме ЧаТ</h4>
-                
                 <div class="mb-6">
                     <p class="mb-3">Агрегатор Ресурсов выполняет следующие ключевые функции в рамках ЧаТ:</p>
-                    
                     <ol class="list-decimal pl-6 space-y-2">
                         <li><strong>Структурирование ресурсов</strong> — категоризация и организация всех доступных ресурсов сообщества</li>
                         <li><strong>Распределение доступа</strong> — обеспечение справедливого и прозрачного доступа к ресурсам в зависимости от уровня участия</li>
@@ -564,12 +808,9 @@
                         <li><strong>Устойчивость</strong> — создание циклов обмена ресурсами, обеспечивающих долгосрочное существование сообщества</li>
                     </ol>
                 </div>
-                
                 <div class="example-card">
                     <h4 class="font-semibold mb-2">Пример работы Агрегатора</h4>
-                    
                     <p class="mb-2">Участник ЧаТ, имеющий навыки чайной церемонии (ресурс 1), получает через Агрегатор доступ к заведению-партнеру (ресурс 2) и маркетинговым материалам (ресурс 3). Это позволяет провести мероприятие, которое:</p>
-                    
                     <ul class="text-sm space-y-1 pl-5 list-disc">
                         <li>Приносит доход мастеру</li>
                         <li>Увеличивает посещаемость заведения</li>
@@ -577,17 +818,13 @@
                         <li>Популяризирует чайную культуру</li>
                         <li>Создает возможности для продажи чая</li>
                     </ul>
-                    
                     <p class="mt-2 text-sm italic">Таким образом, первоначальные ресурсы умножаются в ценности через систему агрегации и обмена.</p>
                 </div>
             </div>
 
-            <!-- 1.3 How to Use This Document -->
             <div id="intro-howto" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">1.3 Как использовать этот документ</h3>
-                
                 <p class="mb-4">Данное руководство разработано как комплексный ресурс для всех участников ЧаТ и может использоваться различными способами в зависимости от ваших целей и роли в сообществе.</p>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="template-card">
                         <h4 class="font-semibold mb-2">Для новых участников</h4>
@@ -598,7 +835,6 @@
                             <li>Просмотрите <a href="#appendices-faq" class="text-green-700 hover:underline">9.5. FAQ</a> для ответов на часто задаваемые вопросы</li>
                         </ul>
                     </div>
-                    
                     <div class="template-card">
                         <h4 class="font-semibold mb-2">Для активных участников</h4>
                         <ul class="space-y-1 text-sm">
@@ -608,7 +844,6 @@
                             <li>Изучите <a href="#membership-paths" class="text-green-700 hover:underline">2.3. Пути развития</a> для планирования своего роста</li>
                         </ul>
                     </div>
-                    
                     <div class="template-card">
                         <h4 class="font-semibold mb-2">Для партнеров и инвесторов</h4>
                         <ul class="space-y-1 text-sm">
@@ -618,7 +853,6 @@
                             <li>Рассмотрите <a href="#growth" class="text-green-700 hover:underline">8. Стратегия роста</a> для оценки долгосрочных перспектив</li>
                         </ul>
                     </div>
-                    
                     <div class="template-card">
                         <h4 class="font-semibold mb-2">Для членов команды</h4>
                         <ul class="space-y-1 text-sm">
@@ -629,42 +863,33 @@
                         </ul>
                     </div>
                 </div>
-                
                 <h4 class="text-xl font-semibold mb-3" style="color: var(--dark-brown);">Навигация по документу</h4>
-                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-white p-4 rounded shadow">
                         <h5 class="font-semibold mb-2">Содержание</h5>
                         <p class="text-sm">Используйте <a href="#" class="text-green-700 hover:underline">Содержание</a> в начале документа для быстрого перехода к нужным разделам.</p>
                     </div>
-                    
                     <div class="bg-white p-4 rounded shadow">
                         <h5 class="font-semibold mb-2">Боковое меню</h5>
                         <p class="text-sm">На экранах большого размера доступно боковое меню для навигации между основными разделами.</p>
                     </div>
-                    
                     <div class="bg-white p-4 rounded shadow">
                         <h5 class="font-semibold mb-2">Внутренние ссылки</h5>
                         <p class="text-sm">Текст содержит ссылки на связанные разделы, обозначенные <span class="text-green-700">зеленым цветом</span>.</p>
                     </div>
                 </div>
-                
                 <div class="bg-gray-100 p-4 rounded">
                     <h4 class="font-semibold mb-2">Обновление документа</h4>
                     <p class="text-sm">Данный документ является живым руководством, которое регулярно обновляется. Текущая версия: <strong>1.0 (Май 2025)</strong>. При обнаружении неточностей или для внесения предложений, пожалуйста, обратитесь к Команде развития ЧаТ.</p>
                 </div>
             </div>
 
-            <!-- 1.4 Key Principles and Values -->
             <div id="intro-principles" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">1.4 Ключевые принципы и ценности</h3>
-                
                 <p class="mb-6">Чайный Траст строится на фундаменте следующих ключевых принципов и ценностей, которые определяют нашу деятельность и взаимоотношения внутри сообщества.</p>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Ключевые принципы</h4>
-                        
                         <div class="space-y-4">
                             <div>
                                 <h5 class="font-semibold flex items-center">
@@ -673,7 +898,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Мы строим не иерархию, а сеть взаимосвязанных кругов, где каждый может проявить инициативу и влиять на решения.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-eye mr-2 text-green-700"></i>
@@ -681,7 +905,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Все решения, финансы и процессы открыты для участников. Мы строим доверие через ясность и честность.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-balance-scale mr-2 text-green-700"></i>
@@ -689,7 +912,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">ЧаТ работает по принципу: вкладывай — получай. Чем больше отдаешь сообществу, тем больше возможностей открывается.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-chart-line mr-2 text-green-700"></i>
@@ -697,7 +919,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Мы начинаем с малого, но с четким видением большого. Каждый шаг проверяем практикой и адаптируемся.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-users mr-2 text-green-700"></i>
@@ -707,10 +928,8 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div>
                         <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Ключевые ценности</h4>
-                        
                         <div class="space-y-4">
                             <div>
                                 <h5 class="font-semibold flex items-center">
@@ -719,7 +938,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Мы чтим многовековые чайные традиции разных культур, сохраняя их аутентичность и глубину.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-lightbulb mr-2 text-green-700"></i>
@@ -727,7 +945,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Мы открыты новым идеям и подходам, интегрируя их с традициями для создания уникальных решений.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-hands-helping mr-2 text-green-700"></i>
@@ -735,7 +952,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Мы поддерживаем друг друга в росте, делимся знаниями и ресурсами для общего успеха.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-award mr-2 text-green-700"></i>
@@ -743,7 +959,6 @@
                                 </h5>
                                 <p class="text-sm ml-6">Мы стремимся к высокому качеству во всем — от чая до образовательных программ и сервиса.</p>
                             </div>
-                            
                             <div>
                                 <h5 class="font-semibold flex items-center">
                                     <i class="fas fa-globe-americas mr-2 text-green-700"></i>
@@ -754,12 +969,9 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="mt-8">
                     <h4 class="text-xl font-semibold mb-3" style="color: var(--dark-brown);">Практическое применение принципов и ценностей</h4>
-                    
                     <p class="mb-4">Наши принципы и ценности не просто декларативны — они воплощаются в конкретных практиках и процессах ЧаТ:</p>
-                    
                     <div class="example-card">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>
@@ -770,7 +982,6 @@
                                     <li>Любой участник может инициировать проект или предложить изменения</li>
                                 </ul>
                             </div>
-                            
                             <div>
                                 <p class="font-semibold">Ценность качества:</p>
                                 <ul class="list-disc pl-5 space-y-1">
@@ -785,25 +996,17 @@
             </div>
         </section>
 
-        <!-- 2. MEMBERSHIP STRUCTURE AND PROGRESSION -->
         <section id="membership" class="mb-16">
             <h2 class="section-title text-3xl font-bold">2. Структура членства и рост</h2>
-            
-            <!-- 2.1 5-tier membership system -->
             <div id="membership-tiers" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">2.1 5-уровневая система членства</h3>
-                
                 <p class="mb-6">ЧаТ использует гибкую систему из 5 уровней участия, которая позволяет каждому найти свое место в сообществе в зависимости от интересов, возможностей и степени вовлеченности. Система разработана таким образом, чтобы обеспечить естественный путь роста для участников, желающих развиваться вместе с сообществом.</p>
-                
-                <!-- Level 1 -->
                 <div class="level-card level-1 mb-4">
                     <div class="flex justify-between items-start mb-2">
                         <h4 class="text-xl font-semibold">Уровень 1: Сторонники и гости</h4>
                         <span class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full">Начальный</span>
                     </div>
-                    
                     <p class="mb-3 text-sm italic">Люди, интересующиеся чайной культурой, но не готовые к активному участию. Покупатели, посетители мероприятий.</p>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Доступные ресурсы:</h5>
@@ -814,7 +1017,6 @@
                                 <li>Рассылка новостей о деятельности ЧаТ</li>
                             </ul>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Вклад в сообщество:</h5>
                             <ul class="text-sm space-y-1 list-disc pl-5">
@@ -824,22 +1026,17 @@
                             </ul>
                         </div>
                     </div>
-                    
                     <div class="bg-gray-200 p-2 rounded text-sm">
                         <p class="font-semibold">Требования для входа:</p>
                         <p>Отсутствуют. Этот уровень открыт для всех интересующихся.</p>
                     </div>
                 </div>
-                
-                <!-- Level 2 -->
                 <div class="level-card level-2 mb-4">
                     <div class="flex justify-between items-start mb-2">
                         <h4 class="text-xl font-semibold">Уровень 2: Участники (базовый уровень)</h4>
                         <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">Подписка</span>
                     </div>
-                    
                     <p class="mb-3 text-sm italic">Регулярные посетители мероприятий, начинающие любители чая, желающие глубже погрузиться в культуру.</p>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Доступные ресурсы:</h5>
@@ -857,7 +1054,6 @@
                                 <li>Возможность приобретения некоторых сортов чая по сниженной цене (110-120 лари/кг)</li>
                             </ul>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Вклад в сообщество:</h5>
                             <ul class="text-sm space-y-1 list-disc pl-5">
@@ -867,22 +1063,17 @@
                             </ul>
                         </div>
                     </div>
-                    
                     <div class="bg-gray-200 p-2 rounded text-sm">
                         <p class="font-semibold">Требования для входа:</p>
                         <p>Оформление ежемесячной подписки и принятие ценностей сообщества.</p>
                     </div>
                 </div>
-                
-                <!-- Level 3 -->
                 <div class="level-card level-3 mb-4">
                     <div class="flex justify-between items-start mb-2">
                         <h4 class="text-xl font-semibold">Уровень 3: Активные участники</h4>
                         <span class="bg-teal-500 text-white text-xs px-2 py-1 rounded-full">Активный</span>
                     </div>
-                    
                     <p class="mb-3 text-sm italic">Энтузиасты чайной культуры, регулярно участвующие в проектах, обладающие определенными навыками для вклада в сообщество.</p>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Доступные ресурсы:</h5>
@@ -902,7 +1093,6 @@
                                 <li>Доступ к базе контактов и партнеров ЧаТ</li>
                             </ul>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Вклад в сообщество:</h5>
                             <ul class="text-sm space-y-1 list-disc pl-5">
@@ -913,22 +1103,17 @@
                             </ul>
                         </div>
                     </div>
-                    
                     <div class="bg-gray-200 p-2 rounded text-sm">
                         <p class="font-semibold">Требования для входа:</p>
                         <p>Минимум 3 месяца на Уровне 2, регулярное участие в мероприятиях, демонстрация приверженности ценностям сообщества, согласие на регулярный вклад времени и навыков.</p>
                     </div>
                 </div>
-                
-                <!-- Level 4 -->
                 <div class="level-card level-4 mb-4">
                     <div class="flex justify-between items-start mb-2">
                         <h4 class="text-xl font-semibold">Уровень 4: Партнеры и мастера</h4>
                         <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Продвинутый</span>
                     </div>
-                    
                     <p class="mb-3 text-sm italic">Профессионалы в сфере чая или смежных областях, активно развивающие направления внутри ЧаТ, инвесторы среднего уровня.</p>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Доступные ресурсы:</h5>
@@ -947,7 +1132,6 @@
                                 <li>Использование инфраструктуры ЧаТ для собственных проектов</li>
                             </ul>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Вклад в сообщество:</h5>
                             <ul class="text-sm space-y-1 list-disc pl-5">
@@ -958,22 +1142,17 @@
                             </ul>
                         </div>
                     </div>
-                    
                     <div class="bg-gray-200 p-2 rounded text-sm">
                         <p class="font-semibold">Требования для входа:</p>
                         <p>Минимум 6 месяцев на Уровне 3, подтвержденные профессиональные навыки в соответствующей области, значительный вклад в развитие ЧаТ, рекомендации от двух существующих членов Уровня 4 или 5.</p>
                     </div>
                 </div>
-                
-                <!-- Level 5 -->
                 <div class="level-card level-5">
                     <div class="flex justify-between items-start mb-2">
                         <h4 class="text-xl font-semibold">Уровень 5: Ядро сообщества</h4>
                         <span class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">Ключевой</span>
                     </div>
-                    
                     <p class="mb-3 text-sm italic">Основатели, стратегические инвесторы, ключевые эксперты, определяющие направление развития ЧаТ.</p>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Доступные ресурсы:</h5>
@@ -985,7 +1164,6 @@
                                 <li>Приоритет при распределении доходов от проектов</li>
                             </ul>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold text-sm mb-1">Вклад в сообщество:</h5>
                             <ul class="text-sm space-y-1 list-disc pl-5">
@@ -996,7 +1174,6 @@
                             </ul>
                         </div>
                     </div>
-                    
                     <div class="bg-gray-200 p-2 rounded text-sm">
                         <p class="font-semibold">Требования для входа:</p>
                         <p>Приглашение от существующих членов Уровня 5, исключительный вклад в развитие ЧаТ, стратегические компетенции или ресурсы, глубокая приверженность миссии и видению.</p>
@@ -1004,12 +1181,9 @@
                 </div>
             </div>
 
-            <!-- 2.2 Specific access rights to resources -->
             <div id="membership-access" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">2.2 Права доступа к ресурсам</h3>
-                
                 <p class="mb-6">Система членства ЧаТ обеспечивает дифференцированный доступ к ресурсам в зависимости от уровня участия. Это создает прозрачный механизм, где больший вклад в сообщество соответствует расширенным возможностям.</p>
-                
                 <div class="overflow-x-auto mb-6">
                     <table>
                         <thead>
@@ -1090,9 +1264,7 @@
                         </tbody>
                     </table>
                 </div>
-                
                 <h4 class="text-xl font-semibold mb-3" style="color: var(--dark-brown);">Детализация доступа по категориям</h4>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="bg-white p-4 rounded shadow">
                         <h5 class="font-semibold mb-2">Чай и продукция</h5>
@@ -1104,7 +1276,6 @@
                             <li><strong>Уровень 5:</strong> Прямой доступ к поставщикам, эксклюзивные сорта, приоритет при ограниченных партиях</li>
                         </ul>
                     </div>
-                    
                     <div class="bg-white p-4 rounded shadow">
                         <h5 class="font-semibold mb-2">Образовательные программы</h5>
                         <ul class="text-sm space-y-1">
@@ -1116,32 +1287,24 @@
                         </ul>
                     </div>
                 </div>
-                
                 <div class="example-card">
                     <h4 class="font-semibold mb-2">Пример: Доступ к благовониям</h4>
-                    
                     <p class="mb-2 text-sm">Новая категория товаров — ароматические благовония — структурирована по уровням доступа следующим образом:</p>
-                    
                     <ul class="text-sm space-y-1">
                         <li><strong>Уровень 1:</strong> Покупка по розничной цене (12-15 лари за пачку)</li>
                         <li><strong>Уровень 2:</strong> Доступ по цене 8 лари за пачку (для личного использования)</li>
                         <li><strong>Уровень 3:</strong> Доступ по цене 6 лари за пачку (для личного использования)</li>
                         <li><strong>Уровень 4 и 5:</strong> Доступ по закупочной цене 5 лари с правом перепродажи</li>
                     </ul>
-                    
                     <p class="mt-2 text-sm">Это позволяет участникам получать качественный продукт по выгодной цене, а Уровням 4 и 5 — использовать ресурс для создания дополнительного дохода.</p>
                 </div>
             </div>
 
-            <!-- 2.3 Progression paths -->
             <div id="membership-paths" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">2.3 Пути развития и роста</h3>
-                
                 <p class="mb-6">ЧаТ создает не статичную, а динамичную систему членства, предполагающую естественный рост участников от начальных уровней к более глубокой вовлеченности. Для этого определены четкие пути развития, позволяющие каждому понимать шаги для перехода на следующие уровни.</p>
-                
                 <div class="mb-8">
                     <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Основные пути роста в ЧаТ</h4>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white p-4 rounded shadow">
                             <h5 class="font-semibold mb-2 flex items-center">
@@ -1164,7 +1327,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="bg-white p-4 rounded shadow">
                             <h5 class="font-semibold mb-2 flex items-center">
                                 <i class="fas fa-store mr-2 text-green-700"></i>
@@ -1186,7 +1348,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="bg-white p-4 rounded shadow">
                             <h5 class="font-semibold mb-2 flex items-center">
                                 <i class="fas fa-users-cog mr-2 text-green-700"></i>
@@ -1210,17 +1371,12 @@
                         </div>
                     </div>
                 </div>
-                
                 <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Комбинированные пути развития</h4>
-                
                 <p class="mb-4">Участники не ограничены одним путем развития и могут комбинировать различные направления для создания уникальной траектории роста.</p>
-                
                 <div class="example-card mb-6">
                     <h5 class="font-semibold mb-2">Пример комбинированного пути:</h5>
-                    
                     <div class="text-sm">
                         <p class="mb-2"><strong>Мастер-предприниматель</strong> — развитие экспертизы в чайной культуре с параллельным созданием бизнес-модели:</p>
-                        
                         <ol class="list-decimal pl-5 space-y-1">
                             <li>Освоение базовых навыков чайной церемонии</li>
                             <li>Создание уникального формата чайных ивентов</li>
@@ -1230,13 +1386,10 @@
                         </ol>
                     </div>
                 </div>
-                
                 <div class="bg-gray-100 p-4 rounded">
                     <h4 class="font-semibold mb-2">Механизм перехода между уровнями</h4>
-                    
                     <div class="text-sm">
                         <p class="mb-2">Переход на следующий уровень происходит по следующему алгоритму:</p>
-                        
                         <ol class="list-decimal pl-5 space-y-1">
                             <li>Участник самостоятельно оценивает свой прогресс по критериям перехода</li>
                             <li>При готовности подает заявку Команде развития ЧаТ через стандартную форму</li>
@@ -1244,20 +1397,15 @@
                             <li>При положительном решении происходит официальный переход на новый уровень</li>
                             <li>Участник получает доступ к новым ресурсам и возможностям</li>
                         </ol>
-                        
                         <p class="mt-2 italic">Примечание: Переход на Уровень 5 происходит только по приглашению существующих членов ядра сообщества.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 2.4 Visual maps showing resource access -->
             <div id="membership-maps" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">2.4 Карты доступа к ресурсам</h3>
-                
                 <p class="mb-6">Для наглядного представления доступа к различным ресурсам ЧаТ в зависимости от уровня участия, разработаны специальные карты ресурсов. Они помогают участникам лучше понимать доступные возможности и планировать свой рост в сообществе.</p>
-                
                 <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Карта образовательных ресурсов</h4>
-                
                 <div class="overflow-x-auto mb-8">
                     <table>
                         <thead>
@@ -1338,7 +1486,6 @@
                         </tbody>
                     </table>
                 </div>
-                
                 <div class="text-sm mb-8">
                     <p><strong>Обозначения:</strong></p>
                     <ul class="flex space-x-6 mt-2">
@@ -1347,9 +1494,7 @@
                         <li class="flex items-center"><span class="resource-access access-none mr-2">Н</span> Нет доступа</li>
                     </ul>
                 </div>
-                
                 <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Карта бизнес-возможностей</h4>
-                
                 <div class="overflow-x-auto mb-6">
                     <table>
                         <thead>
@@ -1422,30 +1567,22 @@
                         </tbody>
                     </table>
                 </div>
-                
                 <div class="example-card">
                     <h4 class="font-semibold mb-2">Как использовать карты ресурсов</h4>
-                    
                     <p class="text-sm mb-3">Карты ресурсов могут использоваться участниками ЧаТ следующими способами:</p>
-                    
                     <ul class="text-sm space-y-1 list-disc pl-5">
                         <li><strong>Планирование пути развития</strong> — определение желаемых ресурсов и необходимого для них уровня</li>
                         <li><strong>Постановка целей</strong> — формулирование конкретных шагов для получения доступа к ценным ресурсам</li>
                         <li><strong>Оценка выгод</strong> — сравнение преимуществ разных уровней для принятия решения о повышении участия</li>
                         <li><strong>Навигация системы</strong> — понимание структуры возможностей в рамках ЧаТ</li>
                     </ul>
-                    
                     <p class="mt-2 text-sm italic">Карты регулярно обновляются при появлении новых ресурсов или изменении правил доступа.</p>
                 </div>
             </div>
 
-            <!-- 2.5 Examples of member journeys -->
             <div id="membership-examples" class="card">
                 <h3 class="subsection-title text-2xl font-semibold">2.5 Примеры путей участников</h3>
-                
                 <p class="mb-6">Чтобы проиллюстрировать возможности роста и развития в рамках ЧаТ, представляем несколько примеров типичных путей участников с разным бэкграундом, целями и интересами.</p>
-                
-                <!-- Example 1 -->
                 <div class="mb-8">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-bold mr-3">
@@ -1456,13 +1593,11 @@
                             <p class="text-sm italic">Преподаватель с опытом руководства детским центром</p>
                         </div>
                     </div>
-                    
                     <div class="pl-16">
                         <div class="mb-4">
                             <h5 class="font-semibold mb-1">Исходная ситуация и мотивация</h5>
                             <p class="text-sm">Анна всегда интересовалась чаем, но никогда не изучала его глубоко. Она обладает организаторскими навыками и педагогическим опытом. Ее мотивация — найти новое хобби с возможностью профессионального развития и дополнительного заработка.</p>
                         </div>
-                        
                         <div class="mb-4">
                             <h5 class="font-semibold mb-1">Путь по уровням</h5>
                             <div class="space-y-4">
@@ -1475,7 +1610,6 @@
                                         <p class="text-sm">Анна посещает открытое мероприятие ЧаТ, где узнает о сообществе и его возможностях. Она решает продолжить знакомство.</p>
                                     </div>
                                 </div>
-                                
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
                                         2
@@ -1485,7 +1619,6 @@
                                         <p class="text-sm">Оформляет подписку (30 лари/месяц) и получает доступ к регулярным событиям. Проходит базовый курс чайной церемонии со скидкой 10%. Начинает практиковать дома и на встречах с друзьями.</p>
                                     </div>
                                 </div>
-                                
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
                                         3
@@ -1495,7 +1628,6 @@
                                         <p class="text-sm">После 4 месяцев регулярных посещений мероприятий и помощи в их организации, переходит на Уровень 3. Получает доступ к продвинутым курсам со скидкой 30%. Начинает проводить небольшие чайные церемонии для гостей ЧаТ под наставничеством опытных мастеров.</p>
                                     </div>
                                 </div>
-                                
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
                                         4
@@ -1507,15 +1639,12 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold mb-1">Результаты и перспективы</h5>
                             <p class="text-sm">Через год после знакомства с ЧаТ Анна имеет стабильный дополнительный доход от проведения образовательных чайных церемоний, создает авторскую программу "Чайная педагогика" для детей и родителей. В перспективе планирует развивать это направление, возможно с выходом на Уровень 5 и созданием специализированного образовательного проекта в рамках чайного комплекса.</p>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Example 2 -->
                 <div class="mb-8">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold mr-3">
@@ -1526,13 +1655,11 @@
                             <p class="text-sm italic">Технологический предприниматель, соучредитель AppHub</p>
                         </div>
                     </div>
-                    
                     <div class="pl-16">
                         <div class="mb-4">
                             <h5 class="font-semibold mb-1">Исходная ситуация и мотивация</h5>
                             <p class="text-sm">Дмитрий является соучредителем стартапа AppHub, создающего приложения для бизнеса. Он интересуется чаем как потребитель и видит потенциал для развития своего продукта в сотрудничестве с ЧаТ. Мотивация — расширение клиентской базы, получение доступа к сообществу как тестовой аудитории, личный интерес к чайной культуре.</p>
                         </div>
-                        
                         <div class="mb-4">
                             <h5 class="font-semibold mb-1">Путь по уровням</h5>
                             <div class="space-y-4">
@@ -1545,7 +1672,6 @@
                                         <p class="text-sm">Дмитрий узнает о ЧаТ через знакомых и приходит на открытое мероприятие. Во время неформального общения обсуждает возможности использования своего технологического решения для чайной карты Батуми.</p>
                                     </div>
                                 </div>
-                                
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
                                         2
@@ -1555,7 +1681,6 @@
                                         <p class="text-sm">Становится участником с базовой подпиской, изучает специфику чайного рынка и потребности сообщества. Предлагает адаптировать свое приложение для нужд ЧаТ.</p>
                                     </div>
                                 </div>
-                                
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
                                         4
@@ -1567,15 +1692,12 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div>
                             <h5 class="font-semibold mb-1">Результаты и перспективы</h5>
                             <p class="text-sm">Дмитрий получает ценную тестовую аудиторию для своего продукта, доступ к новому рынку (чайные компании, заведения) и репутационные преимущества. ЧаТ получает современное технологическое решение, источник дополнительного дохода через партнерскую программу и усиление команды технологическим экспертом. В перспективе планируется интеграция приложения с другими аспектами деятельности ЧаТ, создание полноценной цифровой инфраструктуры для сообщества.</p>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Example 3 -->
                 <div>
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-700 font-bold mr-3">
@@ -1586,13 +1708,11 @@
                             <p class="text-sm italic">Энтузиаст с коллекцией дорогого китайского чая и контактами поставщиков</p>
                         </div>
                     </div>
-                    
                     <div class="pl-16">
                         <div class="mb-4">
                             <h5 class="font-semibold mb-1">Исходная ситуация и мотивация</h5>
                             <p class="text-sm">Гоша — увлеченный коллекционер китайского чая с хорошими контактами среди поставщиков. Он накопил значительные знания о чае, но не имеет опыта в бизнесе и публичных выступлениях. Мотивация — поделиться своими знаниями, расширить круг единомышленников и трансформировать хобби в источник дохода.</p>
                         </div>
-                        
                         <div class="mb-4">
                             <h5 class="font-semibold mb-1">Путь по уровням</h5>
                             <div class="space-y-4">
@@ -1605,109 +1725,10 @@
                                         <p class="text-sm">Благодаря своей экспертизе и ценным контактам, Гоша сразу присоединяется к ЧаТ на Уровне 3. Он проводит дегустацию редких сортов из своей коллекции для членов сообщества и устанавливает первые деловые связи.</p>
                                     </div>
                                 </div>
-                                
                                 <div class="flex">
                                     <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
                                         4
                                     </div>
                                     <div>
                                         <p class="font-semibold">Уровень 4: Чайный эксперт и дистрибьютор</p>
-                                        <p class="text-sm">После трех успешных образовательных мероприятий и организации прямых поставок для сообщества, переходит на Уровень 4. Разрабатывает серию мастер-классов по коллекционным сортам чая, начинает формировать свой бренд дистрибьюции премиальных сортов.</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex">
-                                    <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">
-                                        5
-                                    </div>
-                                    <div>
-                                        <p class="font-semibold">Уровень 5: Стратегический партнер</p>
-                                        <p class="text-sm">Через год активной деятельности инвестирует в создание специализированного пространства для дегустаций в рамках чайного комплекса. Становится членом ядра сообщества, отвечающим за качество продукции и поставки. Организует прямые контакты с производителями в Китае и эксклюзивные поставки для ЧаТ.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h5 class="font-semibold mb-1">Результаты и перспективы</h5>
-                            <p class="text-sm">Гоша трансформирует свое хобби в успешный бизнес, получая поддержку сообщества в развитии коммуникативных и предпринимательских навыков. Его экспертиза становится одним из конкурентных преимуществ ЧаТ, привлекая ценителей редких сортов. В перспективе — организация эксклюзивных чайных туров в Китай для членов сообщества, создание коллекционного чайного клуба и выпуск образовательных материалов.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. RESOURCE CATEGORIES AND OFFERINGS -->
-        <section id="resources" class="mb-16">
-            <h2 class="section-title text-3xl font-bold">3. Категории ресурсов и предложения</h2>
-            
-            <!-- 3.1 Tea Distribution System -->
-            <div id="resources-tea" class="card">
-                <h3 class="subsection-title text-2xl font-semibold">3.1 Система дистрибьюции чая</h3>
-                
-                <p class="mb-6">Система дистрибьюции чая является одним из ключевых компонентов Агрегатора Ресурсов ЧаТ, обеспечивающим как распространение качественного чая, так и создание экономической основы для устойчивого развития сообщества.</p>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Модель B2B-дистрибьюции</h4>
-                        
-                        <p class="mb-3 text-sm">Система прямых продаж чая заведениям HoReCa (гостиницы, рестораны, кафе), студиям и другим бизнесам с акцентом на этичность, эксклюзивность и локальность.</p>
-                        
-                        <div class="space-y-3">
-                            <div>
-                                <h5 class="font-semibold text-sm">Базовый пакет дистрибьютора (Уровень 3+)</h5>
-                                <ul class="text-xs space-y-1 list-disc pl-5">
-                                    <li>Доступ к чаю по цене 100 лари/кг</li>
-                                    <li>Стартовый набор для дегустаций (пробники 5 сортов по 100 г)</li>
-                                    <li>Базовый маркетинг-кит (презентация, буклеты, фото)</li>
-                                    <li>Краткий курс переговоров и продаж</li>
-                                    <li>Список потенциальных клиентов (10-15 заведений)</li>
-                                    <li>Комиссия: 70% дистрибьютору, 30% в фонд ЧаТ</li>
-                                </ul>
-                            </div>
-                            
-                            <div>
-                                <h5 class="font-semibold text-sm">Премиум пакет дистрибьютора (Уровень 4+)</h5>
-                                <ul class="text-xs space-y-1 list-disc pl-5">
-                                    <li>Доступ к чаю по цене 90 лари/кг</li>
-                                    <li>Право создания собственного бренда</li>
-                                    <li>Расширенный маркетинг-кит с кастомизацией</li>
-                                    <li>Доступ к AppHub с 50% возвратом в ЧаТ ($50)</li>
-                                    <li>Полный комплект для проведения дегустаций</li>
-                                    <li>Список 30+ потенциальных клиентов с аналитикой</li>
-                                    <li>Комиссия: 80% дистрибьютору, 20% в фонд ЧаТ</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 class="text-xl font-semibold mb-4" style="color: var(--dark-brown);">Инновационные B2B опции</h4>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <h5 class="font-semibold text-sm">Концепция "Чайный кураторий" (Уровень 4+)</h5>
-                                <p class="text-xs mb-2">Полное сопровождение чайного направления в заведении, включающее:</p>
-                                <ul class="text-xs space-y-1 list-disc pl-5">
-                                    <li>Регулярное обновление чайного меню</li>
-                                    <li>Обучение персонала</li>
-                                    <li>Проведение тематических мероприятий</li>
-                                    <li>Доля выручки: 60% куратору, 20% заведению, 20% ЧаТ</li>
-                                </ul>
-                            </div>
-                            
-                            <div>
-                                <h5 class="font-semibold text-sm">Лизинг чайного оборудования</h5>
-                                <p class="text-xs mb-2">Предоставление заведениям профессионального оборудования с различными опциями оплаты:</p>
-                                <ul class="text-xs space-y-1 list-disc pl-5">
-                                    <li>Ежемесячная фиксированная плата</li>
-                                    <li>Процент от продаж чая</li>
-                                    <li>Комбинированная модель</li>
-                                    <li>Техническое обслуживание и замена включены</li>
-                                    <li>Возврат инвестиций за 6-12 месяцев</li>
-                                </ul>
-                            </div>
-                            
-                            <div>
-                                <h5 class="font-semibold text-sm">Программа "Вода + Чай"</h5>
-                
+                                        <p class="text-sm">После трех успешных образовательных мероприятий и организации прямых поставок для сообщества, переходит на Уровень 4. Разрабатывает серию мастер-классов по коллекционным сортам чая
