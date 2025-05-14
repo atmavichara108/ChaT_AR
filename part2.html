@@ -8,48 +8,7 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
-    <style>
-        /* Медиа-запросы для адаптивности */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 1rem; /* Уменьшение отступов */
-            }
-            .header .series-links {
-                flex-direction: column; /* Ссылки в столбец */
-                align-items: flex-start;
-            }
-            .table-of-contents {
-                display: none; /* Скрываем навигацию по умолчанию */
-            }
-            .table-of-contents.active {
-                display: block; /* Показываем при активации */
-            }
-            .content {
-                padding: 1rem; /* Уменьшение отступов */
-            }
-            .toggle-btn, .btn-primary, .nav-link {
-                padding: 0.75rem 1rem; /* Увеличение размера кнопок */
-                font-size: 1rem;
-            }
-            .expandable-content ul {
-                padding-left: 1rem; /* Уменьшение отступов для списков */
-            }
-            .process-flow {
-                flex-direction: column; /* Шаги процесса в столбец */
-            }
-        }
-        /* Кнопка меню */
-        .menu-toggle {
-            display: none; /* Скрыта на десктопе */
-        }
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-                padding: 0.75rem;
-                cursor: pointer;
-            }
-        }
-    </style>
+   
 </head>
 <body class="bg-stone-50">
     <header class="header">
