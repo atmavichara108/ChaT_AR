@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Агрегатор Ресурсов ЧаТ: Часть 5 - Приложения</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4d7c0f;
+            --secondary-color: #3f6212;
+            --accent-color: #a16207;
+            --light-bg: #f7f5f0;
+            --dark-bg: #292524;
+            --text-color: #292524;
+            --light-text: #f7f5f0;
+            --border-color: #d6d3d1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .document-series {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .document-series a {
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(255,255,255,0.1);
+            transition: background-color 0.3s;
+        }
+        
+        .document-series a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .current-doc {
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background-color: var(--secondary-color);
+        }
+        
+        .content-wrapper {
+            display: flex;
+            position: relative;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background-color: #f3f4f6;
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 74px;
+            height: calc(100vh - 74px);
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem 1rem;
+            min-height: calc(100vh - 74px);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 74px;
+                transform: translateX(-100%);
+                z-index: 30;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .toggle-sidebar {
+                display: block !important;
+            }
+        }
+        
+        .toggle-sidebar {
+            display: none;
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 20;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .toc-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .toc-list a {
+            display: block;
+            padding: 0.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .toc-list a:hover, .toc-list a.active {
+            background-color: #e5e7eb;
+        }
+        
+        .toc-list .level-2 {
+            padding-left: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-color);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+        
+        h4 {
+            font-size: 1.25rem;
+            color: var(--accent-color);
+        }
+        
+        a {
+            color: var(--accent-color);
+        }
+        
+        .implementation-steps {
+            background-color: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .implementation-steps h4 {
+            color: #047857;
+            margin-top: 0;
+        }
+        
+        .resources-needed {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .resources-needed h4 {
+            color: #1d4ed8;
+            margin-top: 0;
+        }
+        
+        .tip-box {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .tip-box h4 {
+            color: #b45309;
+            margin-top: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            display: block;
+        }
+        
+        table th, table td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        
+        .collapsible {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .collapsible::after {
+            content: '\f077';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 1rem;
+            transition: transform 0.3s;
+        }
+        
+        .collapsible.collapsed::after {
+            transform: rotate(180deg);
+        }
+        
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 1000em;
+        }
+        
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+        
+        footer {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        /* Specific styles for tea knowledge database */
+        .tea-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tea-card h4 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Styles for glossary terms */
+        .glossary-term {
+            margin-bottom: 1.5rem;
+        }
+        
+        .glossary-term dt {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .glossary-term dd {
+            margin-left: 0;
+            margin-top: 0.3rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            background-color: #e5e7eb;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        
+        .faq-question {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-answer {
+            padding-top: 0.5rem;
+        }
+        
+        /* For directory */
+        .partner-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: white;
+        }
+        
+        /* Print styles */
+        @media print {
+            .sidebar, .toggle-sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+            header {
+                position: static;
+            }
+            
+            body {
+                background-color: white;
+            }
+            
+            .collapsible-content {
+                max-height: none !important;
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="text-2xl font-bold">Агрегатор Ресурсов Чайного Траста (ЧаТ)</h1>
+            <div class="document-series">
+                <a href="part1.html">Часть 1: Введение и Структура членства</a>
+                <a href="part2.html">Часть 2: Категории ресурсов и Структура команды</a>
+                <a href="part3.html">Часть 3: Реализация проектов и Финансовые модели</a>
+                <a href="part4.html">Часть 4: Операционные инструменты и Стратегия роста</a>
+                <span class="current-doc">Часть 5: Приложения</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="content-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <h3 class="text-lg font-bold mb-4">Содержание</h3>
+            <ul class="toc-list">
+                <li><a href="#intro" class="level-1">Введение к части 5</a></li>
+                <li><a href="#section-9" class="level-1">9. Приложения</a></li>
+                <li><a href="#section-9-1" class="level-2">9.1. База знаний о чае</a></li>
+                <li><a href="#section-9-2" class="level-2">9.2. Фреймворки переговоров</a></li>
+                <li><a href="#section-9-3" class="level-2">9.3. Справочник поставщиков и партнеров</a></li>
+                <li><a href="#section-9-4" class="level-2">9.4. Глоссарий терминов</a></li>
+                <li><a href="#section-9-5" class="level-2">9.5. Часто задаваемые вопросы</a></li>
+                <li><a href="#quick-reference" class="level-1">Быстрый справочник</a></li>
+                <li><a href="#conclusion" class="level-1">Заключение</a></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <section id="intro">
+                <h1>Агрегатор Ресурсов ЧаТ: Часть 5 - Приложения</h1>
+                <p class="text-lg mb-6">Добро пожаловать в пятую часть документации Агрегатора Ресурсов Чайного Траста. В этом разделе собраны практические справочные материалы, которые вы можете использовать в повседневной работе для реализации концепций, описанных в предыдущих частях.</p>
+                <p class="mb-4">Этот документ разработан как практический ресурс, который вы можете регулярно консультировать в ходе развития вашего чайного сообщества, бизнеса или образовательных программ. Он включает базу знаний о чае, инструменты для переговоров, контактную информацию партнеров, глоссарий терминов и ответы на часто задаваемые вопросы.</p>
+                <div class="tip-box">
+                    <h4><i class="fas fa-lightbulb"></i> Совет по использованию</h4>
+                    <p>Используйте этот документ как "энциклопедию" вашего участия в ЧаТ. Закладывайте нужные разделы для быстрого доступа и регулярно обновляйте собственный экземпляр, добавляя новые знания и контакты.</p>
+                </div>
+            </section>
+            
+            <section id="section-9">
+                <h2 class="collapsible">9. Приложения</h2>
+                <div class="collapsible-content">
+                    <p>Данный раздел содержит практические материалы, которые помогут вам в реализации идей и концепций Чайного Траста. Здесь собраны информационные ресурсы, шаблоны, инструменты и справочники, которые вы можете использовать непосредственно в своей деятельности.</p>
+                </div>
+            </section>
+            
+            <section id="section-9-1">
+                <h3 class="collapsible">9.1. База знаний о чае</h3>
+                <div class="collapsible-content">
+                    <p class="mb-6">База знаний о чае представляет собой структурированный свод информации о различных видах чая, их происхождении, способах заваривания и использования. Это базовый ресурс, который понадобится всем участникам Чайного Траста - от новичков до мастеров.</p>
+                    
+                    <h4>Основные типы чая</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="tea-card">
+                            <h4>Зеленый чай</h4>
+                            <p><strong>Происхождение:</strong> Китай, Япония, Корея, Вьетнам, Грузия</p>
+                            <p><strong>Обработка:</strong> Минимальная оксидация, фиксация нагреванием</p>
+                            <p><strong>Вкусовой профиль:</strong> Травянистый, свежий, иногда с ореховыми или фруктовыми нотами</p>
+                            <p><strong>Температура заваривания:</strong> 70-80°C</p>
+                            <p><strong>Время заваривания:</strong> 1-3 минуты</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Черный чай</h4>
+                            <p><strong>Происхождение:</strong> Китай, Индия, Шри-Ланка, Грузия, Кения</p>
+                            <p><strong>Обработка:</strong> Полная оксидация</p>
+                            <p><strong>Вкусовой профиль:</strong> Насыщенный, солодовый, с фруктовыми или пряными нотами</p>
+                            <p><strong>Температура заваривания:</strong> 90-95°C</p>
+                            <p><strong>Время заваривания:</strong> 3-5 минут</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Улун (Оолонг)</h4>
+                            <p><strong>Происхождение:</strong> Китай (Фуцзянь, Гуандун), Тайвань</p>
+                            <p><strong>Обработка:</strong> Частичная оксидация (от 10% до 80%)</p>
+                            <p><strong>Вкусовой профиль:</strong> От цветочного до фруктового и жареного, в зависимости от степени оксидации</p>
+                            <p><strong>Температура заваривания:</strong> 85-95°C</p>
+                            <p><strong>Время заваривания:</strong> 1-5 минут, в зависимости от сорта</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Пуэр</h4>
+                            <p><strong>Происхождение:</strong> Китай (Юньнань)</p>
+                            <p><strong>Обработка:</strong> Ферментация после оксидации (шу пуэр) или естественное созревание (шен пуэр)</p>
+                            <p><strong>Вкусовой профиль:</strong> Землистый, древесный, с нотами грибов и сухофруктов</p>
+                            <p><strong>Температура заваривания:</strong> 95-100°C</p>
+                            <p><strong>Время заваривания:</strong> Короткие настои (10-30 сек) для гунфу ча, 3-5 минут для обычного заваривания</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Белый чай</h4>
+                            <p><strong>Происхождение:</strong> Китай (Фуцзянь), Индия, Непал</p>
+                            <p><strong>Обработка:</strong> Минимальная обработка, природное завяливание и сушка</p>
+                            <p><strong>Вкусовой профиль:</strong> Нежный, сладковатый, с медовыми и цветочными нотами</p>
+                            <p><strong>Температура заваривания:</strong> 75-85°C</p>
+                            <p><strong>Время заваривания:</strong> 4-7 минут</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Грузинский чай</h4>
+                            <p><strong>Происхождение:</strong> Грузия (Аджария, Гурия, Имеретия)</p>
+                            <p><strong>Обработка:</strong> Различные методы - от зеленого до черного</p>
+                            <p><strong>Вкусовой профиль:</strong> Яркий, с характерными цветочными нотами и мягкой сладостью</p>
+                            <p><strong>Температура заваривания:</strong> 85-95°C, в зависимости от типа</p>
+                            <p><strong>Время заваривания:</strong> 2-4 минуты</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Традиционные способы заваривания</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4>Гунфу Ча (Китайская чайная церемония)</h4>
+                            <p><strong>Оборудование:</strong> Гайвань или исинский чайник, чахай, чашки для чая, чайная доска</p>
+                            <p><strong>Особенности:</strong> Многократное заваривание с короткими настоями, высокое соотношение чая к воде</p>
+                            <p><strong>Подходит для:</strong> Улунов, пуэров, высококачественных зеленых и черных чаев</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Западный метод</h4>
+                            <p><strong>Оборудование:</strong> Большой чайник или чайная кружка с ситечком</p>
+                            <p><strong>Особенности:</strong> Однократное заваривание, большой объем воды, меньшее количество чая</p>
+                            <p><strong>Подходит для:</strong> Большинства чаев, особенно черных и травяных</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Грузинский метод</h4>
+                            <p><strong>Оборудование:</strong> Керамический чайник или турка, маленькие стаканы</p>
+                            <p><strong>Особенности:</strong> Крепкое заваривание с добавлением специй, сахара по вкусу</p>
+                            <p><strong>Подходит для:</strong> Местных грузинских чаев, черных чаев</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Холодное заваривание</h4>
+                            <p><strong>Оборудование:</strong> Стеклянный кувшин или бутылка</p>
+                            <p><strong>Особенности:</strong> Заваривание чая в холодной воде в течение 6-12 часов</p>
+                            <p><strong>Подходит для:</strong> Зеленых чаев, белых чаев, некоторых улунов</p>
+                        </div>
+                    </div>
+                    
+                    <div class="implementation-steps">
+                        <h4><i class="fas fa-tasks"></i> Шаги по созданию чайной карты вкусов</h4>
+                        <ol class="ml-4 list-decimal">
+                            <li>Соберите образцы различных типов чая (минимум 5-7 разных видов)</li>
+                            <li>Приготовьте одинаковую посуду для дегустации (белые чашки идеальны)</li>
+                            <li>Заварите каждый чай согласно рекомендациям</li>
+                            <li>Создайте таблицу с категориями: аромат, вкус, послевкусие, текстура</li>
+                            <li>Проведите дегустацию, записывая впечатления</li>
+                            <li>Создайте визуальную карту вкусов, группируя чаи со схожими характеристиками</li>
+                            <li>Используйте эту карту как руководство для последующих дегустаций и обучения</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="resources-needed">
+                        <h4><i class="fas fa-cube"></i> Необходимые ресурсы для базовой чайной лаборатории</h4>
+                        <ul class="ml-4 list-disc">
+                            <li><strong>Оборудование:</strong> Весы с точностью до 0,1г, термометр, таймер, набор стандартной посуды для дегустации</li>
+                            <li><strong>Материалы:</strong> Образцы различных чаев, фильтрованная вода, журнал для записей</li>
+                            <li><strong>Помещение:</strong> Хорошо освещенное пространство без посторонних запахов</li>
+                            <li><strong>Знания:</strong> Базовые принципы дегустации, основы органолептической оценки</li>
+                            <li><strong>Время:</strong> 2-3 часа на подготовку и проведение базовой дегустационной сессии</li>
+                        </ul>
+                    </div>
+                    
+                    <h4 class="mt-8">Хранение чая: основные принципы</h4>
+                    <p class="mb-4">Правильное хранение чая имеет решающее значение для сохранения его вкусовых качеств и аромата. Вот основные принципы, которыми следует руководствоваться:</p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4><i class="fas fa-ban"></i> Избегайте</h4>
+                            <ul class="ml-4 list-disc">
+                                <li>Прямой солнечный свет</li>
+                                <li>Высокая температура</li>
+                                <li>Влажность</li>
+                                <li>Сильные запахи (специи, кофе и т.д.)</li>
+                                <li>Кислород (открытые контейнеры)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4><i class="fas fa-check"></i> Оптимальные условия</h4>
+                            <ul class="ml-4 list-disc">
+                                <li>Темное место</li>
+                                <li>Постоянная прохладная температура</li>
+                                <li>Низкая влажность</li>
+                                <li>Отсутствие посторонних запахов</li>
+                                <li>Герметичные контейнеры</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4><i class="fas fa-box"></i> Лучшие контейнеры</h4>
+                            <ul class="ml-4 list-disc">
+                                <li>Керамические банки с двойной крышкой</li>
+                                <li>Металлические банки с внутренним уплотнителем</li>
+                                <li>Вакуумные пакеты с зип-застежкой</li>
+                                <li>Стеклянные банки (для хранения в темном месте)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Совет для дегустаций</h4>
+                        <p>При проведении дегустаций используйте специальную воду с низким содержанием минералов. В Грузии подойдет бутилированная вода "Бакуриани" или "Саирме". Слишком жесткая или хлорированная вода может искажать вкус чая.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-9-2">
+                <h3 class="collapsible">9.2. Фреймворки переговоров (основы системы КЭМП)</h3>
+                <div class="collapsible-content">
+                    <p class="mb-6">Система КЭМП (акроним от "Концепция", "Этапность", "Методология", "Подход") - это структурированный фреймворк для ведения эффективных переговоров, который будет полезен всем участникам ЧаТ при взаимодействии с партнерами, поставщиками и клиентами.</p>
+                    
+                    <h4>Ключевые принципы системы КЭМП</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4>Концепция</h4>
+                            <p>Основополагающая идея системы заключается в том, что переговоры - это не противостояние, а совместный поиск решений, при котором обе стороны могут достичь своих целей. Ключевые концептуальные положения:</p>
+                            <ul class="ml-4 list-disc">
+                                <li>Фокус на интересах, а не на позициях</li>
+                                <li>Люди и проблемы рассматриваются отдельно</li>
+                                <li>Создание вариантов взаимной выгоды</li>
+                                <li>Использование объективных критериев</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Этапность</h4>
+                            <p>Переговоры в системе КЭМП структурированы по определенным этапам, которые необходимо последовательно пройти:</p>
+                            <ol class="ml-4 list-decimal">
+                                <li>Подготовка и сбор информации</li>
+                                <li>Установление контакта и создание атмосферы</li>
+                                <li>Выявление интересов и потребностей</li>
+                                <li>Генерация вариантов решений</li>
+                                <li>Оценка и отбор лучших вариантов</li>
+                                <li>Заключение соглашения</li>
+                                <li>Обеспечение исполнения</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Методология</h4>
+                            <p>Конкретные методы и инструменты, используемые на каждом этапе переговоров:</p>
+                            <ul class="ml-4 list-disc">
+                                <li>Техники активного слушания</li>
+                                <li>Методы задавания вопросов (открытые, закрытые, уточняющие)</li>
+                                <li>Инструменты анализа интересов</li>
+                                <li>Мозговой штурм для генерации опций</li>
+                                <li>Методы преодоления тупиков</li>
+                                <li>Техники управления эмоциями</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Подход</h4>
+                            <p>Практическое применение концепции, этапов и методологии в конкретных ситуациях:</p>
+                            <ul class="ml-4 list-disc">
+                                <li>Адаптация стратегии к типу переговоров</li>
+                                <li>Учет культурных особенностей собеседника</li>
+                                <li>Выбор подходящего места и времени</li>
+                                <li>Подготовка альтернативных планов</li>
+                                <li>Использование подходящего стиля коммуникации</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Практическое применение в контексте ЧаТ</h4>
+                    
+                    <div class="tea-card mb-6">
+                        <h4>Шаблон подготовки к переговорам</h4>
+                        <table>
+                            <tr>
+                                <th width="30%">Элемент</th>
+                                <th width="70%">Описание</th>
+                            </tr>
+                            <tr>
+                                <td>Цели переговоров</td>
+                                <td>
+                                    <ul class="ml-4 list-disc">
+                                        <li>Основная цель (минимальный результат)</li>
+                                        <li>Оптимальная цель (желаемый результат)</li>
+                                        <li>Максимальная цель (лучший возможный результат)</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Интересы сторон</td>
+                                <td>
+                                    <ul class="ml-4 list-disc">
+                                        <li>Наши интересы (что нам действительно важно)</li>
+                                        <li>Вероятные интересы партнера</li>
+                                        <li>Зоны пересечения интересов</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>НАОС (наилучшая альтернатива обсуждаемому соглашению)</td>
+                                <td>
+                                    <p>Что мы будем делать, если переговоры не приведут к соглашению? (Это определяет нашу готовность уйти от стола переговоров и укрепляет позицию)</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Предложения и уступки</td>
+                                <td>
+                                    <ul class="ml-4 list-disc">
+                                        <li>Начальное предложение</li>
+                                        <li>Возможные уступки (в порядке приоритета)</li>
+                                        <li>Наша "красная линия" (за что мы не готовы уступать)</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Вопросы для выявления интересов</td>
+                                <td>
+                                    <p>Список подготовленных вопросов для лучшего понимания потребностей партнера</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <h4>Сценарии переговоров в контексте ЧаТ</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4>Переговоры с заведениями о дистрибьюции чая</h4>
+                            <p><strong>Типичные интересы заведения:</strong></p>
+                            <ul class="ml-4 list-disc">
+                                <li>Увеличение выручки</li>
+                                <li>Расширение ассортимента</li>
+                                <li>Привлечение новых клиентов</li>
+                                <li>Минимизация рисков</li>
+                                <li>Удобство работы с поставщиком</li>
+                            </ul>
+                            <p><strong>Возможные предложения:</strong></p>
+                            <ul class="ml-4 list-disc">
+                                <li>Начальная поставка на условиях консигнации</li>
+                                <li>Обучение персонала заваривать чай (дополнительная ценность)</li>
+                                <li>Проведение чайных мероприятий для привлечения клиентов</li>
+                                <li>Включение заведения в чайную карту Батуми</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Переговоры с потенциальными инвесторами</h4>
+                            <p><strong>Типичные интересы инвестора:</strong></p>
+                            <ul class="ml-4 list-disc">
+                                <li>Возврат инвестиций с прибылью</li>
+                                <li>Прозрачность использования средств</li>
+                                <li>Минимизация рисков</li>
+                                <li>Понимание бизнес-модели</li>
+                                <li>Возможность участия в принятии решений</li>
+                            </ul>
+                            <p><strong>Возможные предложения:</strong></p>
+                            <ul class="ml-4 list-disc">
+                                <li>Четкая структура возврата инвестиций с процентами</li>
+                                <li>Регулярная отчетность о ходе проекта</li>
+                                <li>Разные уровни участия в зависимости от суммы инвестиций</li>
+                                <li>Возможность конвертации инвестиций в долю в проекте</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="implementation-steps">
+                        <h4><i class="fas fa-tasks"></i> Шаги по подготовке к ключевым переговорам</h4>
+                        <ol class="ml-4 list-decimal">
+                            <li>Определите точную цель переговоров (минимальную, оптимальную, максимальную)</li>
+                            <li>Соберите всю доступную информацию о другой стороне (их интересы, предыдущий опыт, репутация)</li>
+                            <li>Разработайте свою НАОС (наилучшую альтернативу обсуждаемому соглашению)</li>
+                            <li>Подготовьте начальное предложение и план возможных уступок</li>
+                            <li>Составьте список вопросов для выявления интересов партнера</li>
+                            <li>Продумайте возможные возражения и ваши ответы на них</li>
+                            <li>Подготовьте необходимые материалы и презентации</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="resources-needed">
+                        <h4><i class="fas fa-cube"></i> Необходимые ресурсы для успешных переговоров</h4>
+                        <ul class="ml-4 list-disc">
+                            <li><strong>Информационные:</strong> Данные о рынке, конкурентах, потенциальном партнере</li>
+                            <li><strong>Материальные:</strong> Образцы продукции, презентационные материалы, проекты документов</li>
+                            <li><strong>Человеческие:</strong> Участники переговоров с разными компетенциями (эксперт по продукту, финансист, юрист)</li>
+                            <li><strong>Временные:</strong> Минимум 4-6 часов на подготовку к важным переговорам</li>
+                            <li><strong>Знания:</strong> Техники ведения переговоров, подготовленные скрипты и аргументы</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Совет по переговорам в грузинском контексте</h4>
+                        <p>В Грузии большое значение имеют личные отношения и доверие. Выделите время на неформальное общение перед обсуждением деловых вопросов. Проявляйте уважение к местным традициям, будьте готовы к более длительным переговорам, чем в западном бизнесе. Демонстрация знания и уважения к грузинской культуре (включая чайные традиции) создаст положительный фон для успешного заключения сделок.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-9-3">
+                <h3 class="collapsible">9.3. Справочник поставщиков и партнеров</h3>
+                <div class="collapsible-content">
+                    <p class="mb-6">Данный раздел содержит структурированную информацию о потенциальных поставщиках, партнерах и ключевых контактах, которые могут быть полезны для деятельности ЧаТ. Справочник регулярно обновляется участниками сообщества.</p>
+                    
+                    <div class="search-box">
+                        <input type="text" id="partner-search" placeholder="Поиск по партнерам и поставщикам..." onkeyup="searchPartners()">
+                    </div>
+                    
+                    <h4>Чайные производители и фабрики</h4>
+                    
+                    <div id="partners-list">
+                        <div class="partner-card" data-tags="чай,черный,зеленый,производство,гурия">
+                            <h4>GreenGold</h4>
+                            <p><strong>Тип:</strong> Чайная фабрика, производитель</p>
+                            <p><strong>Локация:</strong> Озургети, Гурия</p>
+                            <p><strong>Специализация:</strong> Производство черного и зеленого чая, чайные туры</p>
+                            <p><strong>Возможности сотрудничества:</strong> Дистрибьюция чая (90 лари/кг), организация туров, обучение технологии</p>
+                            <p><strong>Контактная информация:</strong> [Шаблон для заполнения]</p>
+                            <p><strong>Примечания:</strong> Возможность стажировки для чайных мастеров, действующее сотрудничество с ЧаТ</p>
+                        </div>
+                        
+                        <div class="partner-card" data-tags="чай,черный,зеленый,производство,аджария">
+                            <h4>Чакви Чай</h4>
+                            <p><strong>Тип:</strong> Чайная фабрика, производитель</p>
+                            <p><strong>Локация:</strong> Чакви, Аджария</p>
+                            <p><strong>Специализация:</strong> Производство черного и зеленого чая, историческая чайная фабрика</p>
+                            <p><strong>Возможности сотрудничества:</strong> Дистрибьюция чая, экскурсии, исторические чайные туры</p>
+                            <p><strong>Контактная информация:</strong> [Шаблон для заполнения]</p>
+                            <p><strong>Примечания:</strong> Одна из старейших чайных фабрик в Грузии, акцент на историческом наследии</p>
+                        </div>
+                        
+                        <div class="partner-card" data-tags="чай,китайский,импорт,дистрибьюция">
+                            <h4>Мой Чай</h4>
+                            <p><strong>Тип:</strong> Импортер и дистрибьютор чая</p>
+                            <p><strong>Локация:</strong> Москва, Россия (возможна работа через партнеров)</p>
+                            <p><strong>Специализация:</strong> Высококачественный китайский чай, пуэры, улуны</p>
+                            <p><strong>Возможности сотрудничества:</strong> Поставки китайского чая, образовательные материалы</p>
+                            <p><strong>Контактная информация:</strong> [Шаблон для заполнения]</p>
+                            <p><strong>Примечания:</strong> Основатель - Сергей Шевелев, возможность проведения совместных мероприятий</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Образовательные партнеры</h4>
+                    
+                    <div class="partner-card" data-tags="образование,обучение,китайский,чайная церемония">
+                        <h4>Чайная Школа</h4>
+                        <p><strong>Тип:</strong> Образовательный центр</p>
+                        <p><strong>Локация:</strong> Онлайн, физически - Москва, Санкт-Петербург</p>
+                        <p><strong>Специализация:</strong> Обучение чайной церемонии, история чайной культуры</p>
+                        <p><strong>Возможности сотрудничества:</strong> Обмен методическими материалами, совместные курсы</p>
+                        <p><strong>Контактная информация:</strong> [Шаблон для заполнения]</p>
+                        <p><strong>Примечания:</strong> Возможность адаптации программ для грузинского контекста</p>
+                    </div>
+                    
+                    <h4 class="mt-8">Потенциальные места проведения мероприятий в Батуми</h4>
+                    
+                    <div class="partner-card" data-tags="пространство,зал,мероприятия,батуми,центр">
+                        <h4>Co-Working Batumi</h4>
+                        <p><strong>Тип:</strong> Коворкинг и ивент-пространство</p>
+                        <p><strong>Локация:</strong> Центр Батуми</p>
+                        <p><strong>Специализация:</strong> Коворкинг, проведение мероприятий, нетворкинг</p>
+                        <p><strong>Возможности сотрудничества:</strong> Аренда пространства для мероприятий, постоянное место для встреч</p>
+                        <p><strong>Контактная информация:</strong> [Шаблон для заполнения]</p>
+                        <p><strong>Примечания:</strong> Гибкие условия для регулярных мероприятий, возможность бартера</p>
+                    </div>
+                    
+                    <div class="partner-card" data-tags="кафе,чай,мероприятия,батуми">
+                        <h4>Velas Bar</h4>
+                        <p><strong>Тип:</strong> Кафе-бар</p>
+                        <p><strong>Локация:</strong> Батуми</p>
+                        <p><strong>Специализация:</strong> Напитки, небольшие мероприятия, благовония</p>
+                        <p><strong>Возможности сотрудничества:</strong> Проведение чайных церемоний, дистрибьюция благовоний</p>
+                        <p><strong>Контактная информация:</strong> [Шаблон для заполнения]</p>
+                        <p><strong>Примечания:</strong> Дружественное заведение, возможность покупки благовоний по оптовой цене (5 лари)</p>
+                    </div>
+                    
+                    <div class="implementation-steps">
+                        <h4><i class="fas fa-tasks"></i> Шаги по поддержанию актуальности справочника</h4>
+                        <ol class="ml-4 list-decimal">
+                            <li>Назначьте ответственного за обновление справочника (ротация каждые 3 месяца)</li>
+                            <li>Создайте простую форму для добавления новых контактов (онлайн или офлайн)</li>
+                            <li>Регулярно верифицируйте существующие контакты (раз в квартал)</li>
+                            <li>Добавляйте заметки о результатах взаимодействия с партнерами</li>
+                            <li>Классифицируйте партнеров по категориям и тегам для удобного поиска</li>
+                            <li>Регулярно делитесь обновлениями справочника со всеми участниками ЧаТ</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="resources-needed">
+                        <h4><i class="fas fa-cube"></i> Шаблон для добавления нового партнера</h4>
+                        <p><strong>Название организации/контакта:</strong> [Заполнить]</p>
+                        <p><strong>Тип:</strong> [Производитель/Дистрибьютор/Заведение/Образовательный центр/Другое]</p>
+                        <p><strong>Локация:</strong> [Город, Регион, Страна]</p>
+                        <p><strong>Специализация:</strong> [Основные направления деятельности]</p>
+                        <p><strong>Возможности сотрудничества:</strong> [Конкретные формы взаимодействия]</p>
+                        <p><strong>Контактная информация:</strong> [Имя контактного лица, телефон, email, сайт]</p>
+                        <p><strong>История взаимодействия:</strong> [Когда и как был установлен контакт, результаты]</p>
+                        <p><strong>Примечания:</strong> [Дополнительная полезная информация]</p>
+                        <p><strong>Теги для поиска:</strong> [Разделенные запятыми ключевые слова]</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-9-4">
+                <h3 class="collapsible">9.4. Глоссарий терминов</h3>
+                <div class="collapsible-content">
+                    <p class="mb-6">Данный глоссарий содержит определения ключевых терминов, используемых в документации Чайного Траста и в чайной культуре в целом. Это полезный справочный материал, особенно для новых участников сообщества.</p>
+                    
+                    <h4>Термины, связанные с Чайным Трастом</h4>
+                    
+                    <dl>
+                        <div class="glossary-term">
+                            <dt>Агрегатор Ресурсов</dt>
+                            <dd>Центральная концепция ЧаТ, представляющая собой систему, которая объединяет, структурирует и делает доступными различные ресурсы и возможности для всех участников сообщества.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Уровни участия</dt>
+                            <dd>Структурированная система из 5 уровней вовлеченности в ЧаТ (от Сторонников до Ядра сообщества), определяющая права доступа к ресурсам и ответственность участников.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Чайный комплекс</dt>
+                            <dd>Физическое пространство, объединяющее чайную, коворкинг, хостел, мастерские и магазин под одной крышей, являющееся флагманским проектом ЧаТ.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Микроинвестиции</dt>
+                            <dd>Небольшие финансовые вложения (100-300 USD) в конкретные инициативы ЧаТ с фиксированным сроком возврата и процентом доходности.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Чайная карта Батуми</dt>
+                            <dd>Проект по созданию интерактивной карты заведений Батуми, где подают качественный чай, с указанием особенностей каждого места.</dd>
+                        </div>
+                    </dl>
+                    
+                    <h4 class="mt-8">Термины чайной культуры</h4>
+                    
+                    <dl>
+                        <div class="glossary-term">
+                            <dt>Гунфу Ча (工夫茶)</dt>
+                            <dd>Китайская чайная церемония, характеризующаяся высоким соотношением чайного листа к воде, специальной посудой и многократными короткими завариваниями.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Гайвань (盖碗)</dt>
+                            <dd>Китайская чайная посуда, состоящая из чашки с крышкой и блюдцем, используемая для заваривания чая в церемонии Гунфу Ча.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Чахай (茶海)</dt>
+                            <dd>Чайное море - сосуд для равномерного распределения чая по чашкам в китайской чайной церемонии, предотвращающий разницу в крепости напитка.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Пуэр (普洱茶)</dt>
+                            <dd>Постферментированный чай из провинции Юньнань (Китай), который может храниться годами, улучшая свои вкусовые качества со временем.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Улун (Оолонг, 乌龙)</dt>
+                            <dd>Полуферментированный чай, занимающий промежуточное положение между зеленым и черным чаем, с широким диапазоном вкусовых профилей.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Типсы</dt>
+                            <dd>Молодые чайные почки, наиболее ценная часть чайного куста, используемая для производства высококачественных сортов чая.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Чайный мастер</dt>
+                            <dd>Специалист, обладающий глубокими знаниями о чае, его производстве, хранении и способах заваривания, способный проводить чайные церемонии и обучать других.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Чайный технолог</dt>
+                            <dd>Специалист, обладающий знаниями и навыками в области производства и обработки чая, контроля качества и разработки новых сортов.</dd>
+                        </div>
+                    </dl>
+                    
+                    <h4 class="mt-8">Организационные термины</h4>
+                    
+                    <dl>
+                        <div class="glossary-term">
+                            <dt>Горизонтальное управление</dt>
+                            <dd>Организационный подход, при котором минимизируется иерархия, а решения принимаются коллективно или распределяются между автономными командами.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Социократия</dt>
+                            <dd>Система управления, основанная на принципе согласия (а не консенсуса или большинства), где решения принимаются, если нет обоснованных возражений.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Команды (круги)</dt>
+                            <dd>Автономные группы в структуре ЧаТ, отвечающие за определенные направления деятельности, с гибким составом и возможностью пересечения участников.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>Фасилитатор</dt>
+                            <dd>Участник, обеспечивающий эффективный групповой процесс при обсуждениях и принятии решений, без директивного руководства.</dd>
+                        </div>
+                        
+                        <div class="glossary-term">
+                            <dt>НАОС</dt>
+                            <dd>Наилучшая Альтернатива Обсуждаемому Соглашению - концепция из системы КЭМП, определяющая, что произойдет, если переговоры не увенчаются успехом.</dd>
+                        </div>
+                    </dl>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Совет по терминологии</h4>
+                        <p>При общении с новичками и внешними партнерами избегайте избыточного использования специализированных терминов без объяснения. Создайте краткий глоссарий базовых терминов, который можно предоставлять новым участникам при знакомстве с ЧаТ.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="section-9-5">
+                <h3 class="collapsible">9.5. Часто задаваемые вопросы</h3>
+                <div class="collapsible-content">
+                    <p class="mb-6">В этом разделе собраны ответы на наиболее распространенные вопросы о Чайном Трасте, его принципах работы и практических аспектах участия. FAQ будет постоянно обновляться на основе реальных вопросов участников.</p>
+                    
+                    <h4>Общие вопросы о ЧаТ</h4>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Что такое Чайный Траст и чем он отличается от обычного чайного клуба?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Чайный Траст (ЧаТ) — это не просто клуб по интересам, а комплексная экосистема, объединяющая образование, предпринимательство и культурный обмен вокруг чайной культуры. В отличие от обычных чайных клубов, которые фокусируются на дегустациях и общении, ЧаТ создает структурированную среду для личного и профессионального роста участников, предоставляет бизнес-возможности и развивает сообщество на основе горизонтальной структуры управления.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Обязательно ли быть экспертом в чае, чтобы присоединиться к ЧаТ?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Нет, ЧаТ открыт для участников с любым уровнем знаний о чае — от новичков до опытных мастеров. Система уровней участия позволяет каждому найти свое место в сообществе и постепенно расти в нем. Начинающие любители чая могут начать с Уровня 1 или 2, посещая мероприятия и получая базовые знания, а затем, при желании, переходить на более высокие уровни, беря на себя больше ответственности и получая доступ к расширенным возможностям.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Как ЧаТ зарабатывает деньги и обеспечивает свою устойчивость?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>ЧаТ использует многоканальную финансовую модель, включающую:</p>
+                            <ul class="ml-4 list-disc">
+                                <li>Членские взносы участников разных уровней</li>
+                                <li>Доходы от образовательных программ и мероприятий</li>
+                                <li>Комиссия от дистрибьюции чая и других продуктов</li>
+                                <li>Доля от коллаборационных проектов с партнерами</li>
+                                <li>Микроинвестиции и более крупные инвестиции для стратегических проектов</li>
+                            </ul>
+                            <p>Важный принцип: все финансовые потоки прозрачны для участников соответствующих уровней, а распределение доходов происходит по справедливой системе, учитывающей вклад каждого участника.</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Вопросы об участии и членстве</h4>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Как определяется уровень участия и можно ли переходить с одного уровня на другой?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Уровень участия определяется комбинацией следующих факторов:</p>
+                            <ul class="ml-4 list-disc">
+                                <li>Время, которое участник готов регулярно уделять сообществу</li>
+                                <li>Навыки и экспертиза, которыми он готов делиться</li>
+                                <li>Финансовый вклад (членские взносы или инвестиции)</li>
+                                <li>История участия и предыдущие достижения в ЧаТ</li>
+                            </ul>
+                            <p>Переход между уровнями не только возможен, но и приветствуется — это отражает рост участника внутри сообщества. Для перехода на более высокий уровень участник должен соответствовать критериям этого уровня и получить рекомендации от участников соответствующего или более высокого уровня.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Сколько времени нужно уделять ЧаТ на разных уровнях участия?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Временные затраты различаются в зависимости от уровня участия:</p>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Уровень 1 (Сторонники):</strong> Минимальные обязательства, участие в отдельных мероприятиях по желанию</li>
+                                <li><strong>Уровень 2 (Участники):</strong> 1-2 часа в неделю для посещения мероприятий и предоставления обратной связи</li>
+                                <li><strong>Уровень 3 (Активные):</strong> 4-6 часов в месяц для регулярного участия в проектах и мероприятиях</li>
+                                <li><strong>Уровень 4 (Партнеры):</strong> 8+ часов в неделю для ведения направлений и проектов</li>
+                                <li><strong>Уровень 5 (Ядро):</strong> Значительное время для стратегического управления и развития ЧаТ</li>
+                            </ul>
+                            <p>Эти ориентиры гибкие и могут адаптироваться под конкретные обстоятельства участника, особенно если он компенсирует меньшее количество времени другими формами вклада.</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Практические вопросы</h4>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Как я могу начать дистрибьюцию чая через ЧаТ?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Для начала дистрибьюции чая через ЧаТ необходимо:</p>
+                            <ol class="ml-4 list-decimal">
+                                <li>Достичь минимум Уровня 3 участия (Активный участник)</li>
+                                <li>Пройти базовый курс по чайной культуре и основам продаж</li>
+                                <li>Подать заявку в Маркетинговую команду на получение статуса дистрибьютора</li>
+                                <li>Получить стартовый набор дистрибьютора (образцы чая, маркетинг-кит)</li>
+                                <li>Пройти инструктаж по дистрибьюции и заключить соглашение с ЧаТ</li>
+                            </ol>
+                            <p>После этого вы получите доступ к чаю по оптовой цене (100 лари/кг для Уровня 3, 90 лари/кг для Уровня 4+) и сможете начать работу с заведениями, используя ресурсы ЧаТ.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Как организовать чайное мероприятие под брендом ЧаТ?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Процесс организации мероприятия включает следующие шаги:</p>
+                            <ol class="ml-4 list-decimal">
+                                <li>Разработайте концепцию мероприятия (формат, целевая аудитория, цели)</li>
+                                <li>Заполните форму заявки на мероприятие и отправьте её Команде мероприятий</li>
+                                <li>После одобрения получите доступ к ресурсам ЧаТ для организации (оборудование, маркетинг)</li>
+                                <li>Составьте детальный план и бюджет мероприятия</li>
+                                <li>Проведите мероприятие с использованием брендинга ЧаТ</li>
+                                <li>Предоставьте отчет о результатах и распределите доходы согласно модели ЧаТ</li>
+                            </ol>
+                            <p>Распределение доходов обычно происходит по модели: 60% организатору, 30% на покрытие расходов и аренду пространства, 10% в фонд ЧаТ.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            Какие инвестиционные возможности существуют в рамках ЧаТ?
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>ЧаТ предлагает несколько уровней инвестиционных возможностей:</p>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Микроинвестиции (100-300 USD):</strong> Финансирование закупки партий чая с возвратом инвестиций + 15% годовых в течение 3-6 месяцев</li>
+                                <li><strong>Средние инвестиции (500-2000 USD):</strong> Финансирование образовательных проектов, маркетинговых кампаний или закупки оборудования с возвратом + 20% годовых в течение 6-12 месяцев</li>
+                                <li><strong>Стратегические инвестиции (от 5000 USD):</strong> Участие в создании чайного комплекса или других крупных проектах с долевым участием и ожидаемой доходностью 25-30% годовых</li>
+                            </ul>
+                            <p>Все инвестиционные проекты оформляются официально, с прозрачной отчетностью и четкими условиями возврата средств.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Совет по работе с FAQ</h4>
+                        <p>Создайте систему сбора вопросов от участников и потенциальных партнеров. Регулярно анализируйте наиболее часто задаваемые вопросы и добавляйте их в этот раздел с ясными, конкретными ответами. Это сэкономит время на повторяющихся объяснениях и обеспечит единообразие информации.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="quick-reference">
+                <h2 class="collapsible">Быстрый справочник</h2>
+                <div class="collapsible-content">
+                    <p class="mb-6">Этот раздел предоставляет краткий обзор ключевых концепций из всех предыдущих частей документации для быстрого доступа и справки.</p>
+                    
+                    <h4>Ключевые элементы ЧаТ</h4>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4>Ценности и принципы</h4>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Горизонтальность:</strong> Сеть взаимосвязанных кругов вместо иерархии</li>
+                                <li><strong>Прозрачность:</strong> Открытость решений, финансов и процессов</li>
+                                <li><strong>Взаимность:</strong> Принцип "вкладывай-получай"</li>
+                                <li><strong>Эволюционность:</strong> Постепенное развитие с проверкой практикой</li>
+                                <li><strong>Инклюзивность:</strong> Открытость для всех разделяющих ценности</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Структура членства</h4>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Уровень 1:</strong> Сторонники и гости</li>
+                                <li><strong>Уровень 2:</strong> Участники (базовый уровень)</li>
+                                <li><strong>Уровень 3:</strong> Активные участники</li>
+                                <li><strong>Уровень 4:</strong> Партнеры и мастера</li>
+                                <li><strong>Уровень 5:</strong> Ядро сообщества</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Команды (круги)</h4>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Образовательная команда:</strong> Курсы, материалы, мастер-классы</li>
+                                <li><strong>Команда мероприятий:</strong> Встречи, фестивали, коллаборации</li>
+                                <li><strong>Маркетинговая команда:</strong> Бренд, коммуникации, контент</li>
+                                <li><strong>Финансовая команда:</strong> Бюджет, инвестиции, учет</li>
+                                <li><strong>Команда развития:</strong> Стратегия, координация, интеграция</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Ключевые процессы</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4>Принятие решений</h4>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Командные решения:</strong> Автономно внутри зоны ответственности</li>
+                                <li><strong>Стратегические решения:</strong> Через консенсус всех команд</li>
+                                <li><strong>Конфликтные ситуации:</strong> Медиация через команду развития</li>
+                                <li><strong>Принцип согласия:</strong> Решение принимается, если нет обоснованных возражений</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Финансовая модель</h4>
+                            <ul class="ml-4 list-disc">
+                                <li><strong>Потоки доходов:</strong> Членские взносы, образование, дистрибьюция, мероприятия</li>
+                                <li><strong>Распределение:</strong> 40% операционные расходы, 30% вознаграждения, 20% развитие, 10% резерв</li>
+                                <li><strong>Инвестиции:</strong> Микро (100-300 USD), средние (500-2000 USD), стратегические (5000+ USD)</li>
+                                <li><strong>Прозрачность:</strong> Открытая отчетность для соответствующих уровней участия</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mt-8">Ключевые проекты</h4>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div class="tea-card">
+                            <h4>Чайная карта Батуми</h4>
+                            <p>Интерактивная карта заведений города с качественным чаем, включающая описания, рейтинги и особенности каждого места.</p>
+                            <p><strong>Статус:</strong> В разработке</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Образовательная программа</h4>
+                            <p>Структурированные курсы по чайной культуре для разных уровней подготовки, от базового до продвинутого.</p>
+                            <p><strong>Статус:</strong> Планирование</p>
+                        </div>
+                        
+                        <div class="tea-card">
+                            <h4>Чайный комплекс</h4>
+                            <p>Физическое пространство, объединяющее чайную, хостел, мастерские, коворкинг и магазин в единый центр.</p>
+                            <p><strong>Статус:</strong> Концепция</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Совет по использованию справочника</h4>
+                        <p>Распечатайте сокращенную версию этого раздела как "шпаргалку" для быстрого ознакомления новых участников с основными концепциями и процессами ЧаТ. Это ускорит интеграцию и обеспечит единое понимание принципов работы сообщества.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="conclusion">
+                <h2>Заключение</h2>
+                <p class="mb-4">Этот документ представляет собой заключительную часть методологии Агрегатора Ресурсов Чайного Траста. Приложения, представленные здесь, служат практическим дополнением к концепциям и подходам, описанным в предыдущих частях.</p>
+                <p class="mb-4">Чайный Траст — это живой, эволюционирующий организм, который будет развиваться вместе с его участниками. Данная документация представляет собой не жесткий набор правил, а гибкую систему координат, которая может адаптироваться к меняющимся условиям и потребностям сообщества.</p>
+                <p>Мы приглашаем всех, кто разделяет наше видение, присоединиться к этому уникальному проекту, вносить свой вклад в его развитие и расти вместе с ним. Благодарим вас за интерес к Чайному Трасту и надеемся на плодотворное сотрудничество!</p>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-gray-600">Версия документа: 1.0</p>
+                    <p class="text-sm text-gray-600">Дата создания: Май 2025</p>
+                    <p class="text-sm text-gray-600">© Чайный Траст, 2025</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <button class="toggle-sidebar" id="toggleSidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <footer>
+        <div class="container">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Чайный Траст (ЧаТ)</h3>
+                    <p>Сообщество, объединенное вокруг чайной культуры</p>
+                    <p class="mt-4">Батуми, Грузия</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Документация</h4>
+                    <ul class="space-y-2">
+                        <li><a href="part1.html">Часть 1: Введение и Структура членства</a></li>
+                        <li><a href="part2.html">Часть 2: Категории ресурсов и Структура команды</a></li>
+                        <li><a href="part3.html">Часть 3: Реализация проектов и Финансовые модели</a></li>
+                        <li><a href="part4.html">Часть 4: Операционные инструменты и Стратегия роста</a></li>
+                        <li><a href="#" class="font-bold">Часть 5: Приложения</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Контакты</h4>
+                    <p><i class="fas fa-envelope mr-2"></i> info@chatrust.org</p>
+                    <p><i class="fas fa-phone mr-2"></i> +995 555 12 34 56</p>
+                    <p class="mt-4">
+                        <a href="#" class="mr-4"><i class="fab fa-telegram fa-lg"></i></a>
+                        <a href="#" class="mr-4"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#"><i class="fab fa-facebook fa-lg"></i></a>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-700 text-center">
+                <p>© 2025 Чайный Траст. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Toggle sidebar
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        
+        // Collapsible sections
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize collapsible sections
+            const collapsibles = document.querySelectorAll('.collapsible');
+            
+            collapsibles.forEach(collapsible => {
+                // Don't collapse initially, keep all sections expanded
+                // collapsible.classList.add('collapsed');
+                // collapsible.nextElementSibling.classList.add('collapsed');
+                
+                collapsible.addEventListener('click', function() {
+                    this.classList.toggle('collapsed');
+                    this.nextElementSibling.classList.toggle('collapsed');
+                });
+            });
+            
+            // Active section tracking for TOC
+            const sections = document.querySelectorAll('section[id]');
+            const tocLinks = document.querySelectorAll('.toc-list a');
+            
+            function highlightTOC() {
+                let scrollY = window.pageYOffset;
+                
+                sections.forEach(section => {
+                    const sectionHeight = section.offsetHeight;
+                    const sectionTop = section.offsetTop - 100;
+                    const sectionId = section.getAttribute('id');
+                    
+                    if(scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                        tocLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if(link.getAttribute('href') === '#' + sectionId) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Smooth scrolling
+            tocLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    
+                    window.scrollTo({
+                        top: targetSection.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close sidebar on mobile after click
+                    if(window.innerWidth <= 768) {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
+                });
+            });
+            
+            // Toggle FAQ
+            window.toggleFAQ = function(element) {
+                const answer = element.nextElementSibling;
+                const icon = element.querySelector('i');
+                
+                if(answer.style.display === 'block') {
+                    answer.style.display = 'none';
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                    answer.style.display = 'block';
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                }
+            };
+            
+            // Initialize FAQ answers as hidden
+            document.querySelectorAll('.faq-answer').forEach(answer => {
+                answer.style.display = 'none';
+            });
+            
+            // Search partners
+            window.searchPartners = function() {
+                const input = document.getElementById('partner-search');
+                const filter = input.value.toLowerCase();
+                const partners = document.querySelectorAll('#partners-list .partner-card');
+                
+                partners.forEach(partner => {
+                    const text = partner.textContent.toLowerCase();
+                    const tags = partner.getAttribute('data-tags') ? partner.getAttribute('data-tags').toLowerCase() : '';
+                    
+                    if(text.includes(filter) || tags.includes(filter)) {
+                        partner.style.display = '';
+                    } else {
+                        partner.style.display = 'none';
+                    }
+                });
+            };
+            
+            // Track scroll position for TOC highlighting
+            window.addEventListener('scroll', highlightTOC);
+            
+            // Initial highlighting
+            highlightTOC();
+        });
+    </script>
+</body>
+</html>
